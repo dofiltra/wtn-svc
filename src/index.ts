@@ -57,7 +57,6 @@ class WordtuneSvc {
         await pwrt?.close('from getSuggestions 1')
         return { result: [text] }
       }
-      Math.random() > 0.5 && pwrt.checkIp().then((x) => console.log(x))
 
       await page.type('#widget-textarea', text)
       await page.click('#widget-rewrite-button')
