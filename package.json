@@ -14,7 +14,8 @@
     "prepare": "npm run build",
     "preversion": "npm run lint",
     "version": "npm run format && git add -A src",
-    "postversion": "git push && git push --tags"
+    "postversion": "git push && git push --tags",
+    "debug": "npm run build && node --experimental-modules --es-module-specifier-resolution=node ./lib/index.js"
   },
   "repository": {
     "type": "git",
@@ -41,7 +42,7 @@
     "lib/**/*"
   ],
   "dependencies": {
-    "browser-manager": "^1.0.5",
+    "browser-manager": "^1.0.6",
     "dbtempo": "^1.0.2",
     "is-running-process": "^1.0.0",
     "lodash": "^4.17.21",

@@ -9,7 +9,7 @@ type TWordTuneSettings = {
   appPath?: string
 }
 
-export const WORDTUNE_MAX_LENGTH = 280
+export const WTN_MAX_LENGTH = 280
 
 class WordtuneSvc {
   protected _settings: TWordTuneSettings
@@ -22,7 +22,7 @@ class WordtuneSvc {
   async getSuggestions(text: string) {
     const { appPath, dbCacheName = `suggestions-{YYYY}-{MM}-{DD}.json` } = this._settings
 
-    if (!text?.length || text.length > WORDTUNE_MAX_LENGTH) {
+    if (!text?.length || text.length > WTN_MAX_LENGTH) {
       return { result: [text] }
     }
 
