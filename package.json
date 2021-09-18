@@ -15,7 +15,7 @@
     "preversion": "npm run lint",
     "version": "npm run format && git add -A src",
     "postversion": "git push && git push --tags",
-    "debug": "npm run build && node --experimental-modules --es-module-specifier-resolution=node ./lib/index.js"
+    "debug": "npm run build && node --trace-warnings --experimental-modules --es-module-specifier-resolution=node ./lib/debug.js"
   },
   "repository": {
     "type": "git",
