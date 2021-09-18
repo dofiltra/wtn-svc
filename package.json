@@ -45,6 +45,7 @@
     "dbtempo": "^1.0.2",
     "is-running-process": "^1.0.0",
     "lodash": "^4.17.21",
+    "proxy-extract": "^1.0.1",
     "time-helpers": "^1.0.0"
   }
 }

@@ -1,7 +1,8 @@
+import _ from 'lodash'
 import { BrowserManager } from 'browser-manager'
 import { LowDbKv } from 'dbtempo'
-import _ from 'lodash'
 import { chromium, devices } from 'playwright'
+import { extractProxy } from 'proxy-extract'
 
 type TWordTuneSettings = {
   dbCacheName?: string
@@ -36,12 +37,22 @@ class WordtuneSvc {
 
     // TODO: if errors > 10 permanent, then return [text]
 
+    const proxy = (
+      await extractProxy({
+        tryLimit: 5,
+        count: 1
+      })
+    )[0]
+
     try {
       const pwrt: BrowserManager = await BrowserManager.build({
         browserType: chromium,
         idleCloseSeconds: 60,
         launchOpts: {
-          headless: true
+          headless: true,
+          proxy: {
+            server: proxy?.url
+          }
         },
         device: devices['Pixel 5'],
         maxOpenedBrowsers: 10,
