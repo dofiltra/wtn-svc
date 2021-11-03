@@ -15,6 +15,7 @@ export const WTN_MAX_LENGTH = 280
 export class WordtuneSvc {
   protected settings: TWordTuneSettings
   private svcUrl = 'https://www.wordtune.com/'
+  private limitProxyCount = 100
 
   constructor(s?: TWordTuneSettings) {
     this.settings = { ...s }
@@ -102,6 +103,9 @@ export class WordtuneSvc {
 
     for (const proxy of _.shuffle(proxies)) {
       let { result = 0 } = await db.get(proxy.url)
+      if (result >= this.limitProxyCount) {
+        continue
+      }
       await db.add({ [proxy.url]: ++result })
       return proxy
     }
