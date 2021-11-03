@@ -58,8 +58,8 @@ export class WordtuneSvc {
         // device: devices['Pixel 5'],
         launchOpts,
         idleCloseSeconds: 60,
+        lockCloseFirst: 300,
         maxOpenedBrowsers: 10,
-        lockCloseFirst: 60,
         appPath
       })
       const page = await pwrt?.newPage({
