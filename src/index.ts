@@ -19,7 +19,7 @@ class WordtuneSvc {
     this._settings = { ...s }
   }
 
-  async getSuggestions(text: string) {
+  async getSuggestions(text: string, proxies: { url: string }[] = []) {
     const { appPath, dbCacheName = `suggestions-{YYYY}-{MM}-{DD}.json` } = this._settings
 
     if (!text?.length || text.length > WTN_MAX_LENGTH) {
@@ -37,12 +37,11 @@ class WordtuneSvc {
 
     // TODO: if errors > 10 permanent, then return [text]
 
-    const proxy = (
-      await extractProxy({
-        tryLimit: 5,
-        count: 1
-      })
-    )[0]
+    const proxy = proxies[0]
+    // await extractProxy({
+    //   tryLimit: 5,
+    //   count: 1
+    // })
 
     try {
       const pwrt: BrowserManager = await BrowserManager.build({
