@@ -1,3 +1,5 @@
+/* tslint:disable:no-console */
+
 import { WordtuneSvc } from '.'
 
 const debug = async () => {
@@ -8,7 +10,7 @@ const debug = async () => {
 
   const proxy = await wtn.getProxy()
   // console.log(proxy);
-  
+
   // console.log(await wtn.getSuggestions(`hello guys and girls`))
 }
 
