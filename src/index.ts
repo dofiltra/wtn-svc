@@ -106,7 +106,7 @@ export class WordtuneSvc {
       if (result >= this.limitProxyCount) {
         continue
       }
-      await db.add({ [proxy.url]: ++result })
+      db.add({ [proxy.url]: ++result })
       return proxy
     }
 
