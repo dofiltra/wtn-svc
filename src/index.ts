@@ -1,25 +1,27 @@
 import _ from 'lodash'
-import { BrowserManager } from 'browser-manager'
+import { BrowserManager, LaunchOptions } from 'browser-manager'
 import { LowDbKv } from 'dbtempo'
+import { TBrowserOpts } from 'browser-manager/lib/types'
 // import { extractProxy } from 'proxy-extract'
 
 type TWordTuneSettings = {
   dbCacheName?: string
-  appPath?: string
+  proxies?: { url: string }[]
+  browserOpts?: TBrowserOpts
 }
 
 export const WTN_MAX_LENGTH = 280
 
 export class WordtuneSvc {
-  protected _settings: TWordTuneSettings
-  private _svcUrl = 'https://www.wordtune.com/'
+  protected settings: TWordTuneSettings
+  private svcUrl = 'https://www.wordtune.com/'
 
   constructor(s?: TWordTuneSettings) {
-    this._settings = { ...s }
+    this.settings = { ...s }
   }
 
-  async getSuggestions(text: string, proxies: { url: string }[] = []) {
-    const { appPath, dbCacheName = `suggestions-{YYYY}-{MM}-{DD}.json` } = this._settings
+  async getSuggestions(text: string) {
+    const { dbCacheName = `suggestions-{YYYY}-{MM}-{DD}.json`, browserOpts } = this.settings
 
     if (!text?.length || text.length > WTN_MAX_LENGTH) {
       return { result: [text] }
@@ -36,14 +38,15 @@ export class WordtuneSvc {
 
     // TODO: if errors > 10 permanent, then return [text]
 
-    const proxy = proxies[0]
+    const proxy = await this.getProxy()
     // await extractProxy({
     //   tryLimit: 5,
     //   count: 1
     // })
 
-    const launchOpts: any = {
-      headless: true
+    const launchOpts: LaunchOptions = {
+      headless: true,
+      ...browserOpts?.launchOpts
     }
 
     if (proxy?.url) {
@@ -54,16 +57,14 @@ export class WordtuneSvc {
 
     try {
       const pwrt = await BrowserManager.build<BrowserManager>({
-        // browserType: chromium,
-        // device: devices['Pixel 5'],
-        launchOpts,
-        idleCloseSeconds: 60,
+        idleCloseSeconds: 300,
         lockCloseFirst: 300,
-        maxOpenedBrowsers: 10,
-        appPath
+        maxOpenedBrowsers: 1,
+        ...browserOpts,
+        launchOpts
       })
       const page = await pwrt?.newPage({
-        url: this._svcUrl,
+        url: this.svcUrl,
         waitUntil: 'networkidle'
       })
 
@@ -91,5 +92,20 @@ export class WordtuneSvc {
     }
 
     return { result: [text] }
+  }
+
+  async getProxy() {
+    const { proxies = [] } = this.settings
+    const db = new LowDbKv({
+      dbName: `proxy-{YYYY}-{MM}-{DD}.json`
+    })
+
+    for (const proxy of _.shuffle(proxies)) {
+      let { result = 0 } = await db.get(proxy.url)
+      await db.add({ [proxy.url]: ++result })
+      return proxy
+    }
+
+    return null
   }
 }
