@@ -42,17 +42,22 @@ export class WordtuneSvc {
     //   count: 1
     // })
 
+    const launchOpts: any = {
+      headless: true
+    }
+
+    if (proxy?.url) {
+      launchOpts.proxy = {
+        server: proxy.url
+      }
+    }
+
     try {
       const pwrt = await BrowserManager.build<BrowserManager>({
         // browserType: chromium,
-        idleCloseSeconds: 60,
-        launchOpts: {
-          headless: false,
-          // proxy: {
-          //   server: proxy?.url
-          // }
-        },
         // device: devices['Pixel 5'],
+        launchOpts,
+        idleCloseSeconds: 60,
         maxOpenedBrowsers: 10,
         lockCloseFirst: 60,
         appPath
