@@ -2,7 +2,7 @@ import _ from 'lodash'
 import { BrowserManager } from 'browser-manager'
 import { LowDbKv } from 'dbtempo'
 import { chromium, devices } from 'playwright'
-import { extractProxy } from 'proxy-extract'
+// import { extractProxy } from 'proxy-extract'
 
 type TWordTuneSettings = {
   dbCacheName?: string
