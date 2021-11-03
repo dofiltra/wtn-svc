@@ -1,7 +1,6 @@
 import _ from 'lodash'
 import { BrowserManager } from 'browser-manager'
 import { LowDbKv } from 'dbtempo'
-import { chromium, devices } from 'playwright'
 // import { extractProxy } from 'proxy-extract'
 
 type TWordTuneSettings = {
@@ -11,7 +10,7 @@ type TWordTuneSettings = {
 
 export const WTN_MAX_LENGTH = 280
 
-class WordtuneSvc {
+export class WordtuneSvc {
   protected _settings: TWordTuneSettings
   private _svcUrl = 'https://www.wordtune.com/'
 
@@ -44,16 +43,16 @@ class WordtuneSvc {
     // })
 
     try {
-      const pwrt: BrowserManager = await BrowserManager.build({
-        browserType: chromium,
+      const pwrt = await BrowserManager.build<BrowserManager>({
+        // browserType: chromium,
         idleCloseSeconds: 60,
         launchOpts: {
-          headless: true,
-          proxy: {
-            server: proxy?.url
-          }
+          headless: false,
+          // proxy: {
+          //   server: proxy?.url
+          // }
         },
-        device: devices['Pixel 5'],
+        // device: devices['Pixel 5'],
         maxOpenedBrowsers: 10,
         lockCloseFirst: 60,
         appPath
@@ -70,7 +69,7 @@ class WordtuneSvc {
 
       await page.type('#widget-textarea', text)
       await page.click('#widget-rewrite-button')
-      const respResult: any = await pwrt.getRespResult(page, 'rewrite-limited', text)
+      const respResult: any = await pwrt?.getRespResult(page, 'rewrite-limited', text)
       await pwrt?.close('from getSuggestions 2')
 
       if (respResult?.suggestions?.length) {
@@ -89,5 +88,3 @@ class WordtuneSvc {
     return { result: [text] }
   }
 }
-
-export { WordtuneSvc }
