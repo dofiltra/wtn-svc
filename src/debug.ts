@@ -5,8 +5,8 @@ const debug = async () => {
     dbCacheName: 'test'
   })
 
-  console.log(1)
-  console.log(await wtn.getSuggestions(`hello guys and girls`))
+  // console.log(1)
+  // console.log(await wtn.getSuggestions(`hello guys and girls`))
 }
 
 debug()
