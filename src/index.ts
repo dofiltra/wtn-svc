@@ -4,7 +4,7 @@ import { LowDbKv } from 'dbtempo'
 import { TBrowserOpts } from 'browser-manager/lib/types'
 // import { extractProxy } from 'proxy-extract'
 
-type TWordTuneSettings = {
+export type TWordTuneSettings = {
   dbCacheName?: string
   proxies?: { url: string }[]
   browserOpts?: TBrowserOpts
@@ -37,13 +37,9 @@ export class WordtuneSvc {
       return { result: existItem.result.suggestions }
     }
 
-    // TODO: if errors > 10 permanent, then return [text]
-
     const proxy = await this.getProxy()
-    // await extractProxy({
-    //   tryLimit: 5,
-    //   count: 1
-    // })
+    // TODO: if errors > 10 permanent, then return [text]
+    // TODO: if (!proxy?.url) { return }
 
     const launchOpts: LaunchOptions = {
       headless: true,
