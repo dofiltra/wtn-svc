@@ -1,9 +1,9 @@
 /* tslint:disable:no-console */
 
-import { WordtuneSvc } from '.'
+import { WtnSvc } from '.'
 
 const debug = async () => {
-  const wtn = new WordtuneSvc({
+  const wtn = new WtnSvc({
     dbCacheName: 'test',
     proxies: [{ url: 'https://test.ru@asd.ru:123:123' }]
   })

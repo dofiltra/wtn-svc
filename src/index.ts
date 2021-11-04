@@ -4,7 +4,7 @@ import { LowDbKv } from 'dbtempo'
 import { TBrowserOpts } from 'browser-manager/lib/types'
 // import { extractProxy } from 'proxy-extract'
 
-export type TWordTuneSettings = {
+export type TWtnSettings = {
   dbCacheName?: string
   proxies?: { url: string }[]
   browserOpts?: TBrowserOpts
@@ -12,12 +12,12 @@ export type TWordTuneSettings = {
 
 export const WTN_MAX_LENGTH = 280
 
-export class WordtuneSvc {
-  protected settings: TWordTuneSettings
+export class WtnSvc {
+  protected settings: TWtnSettings
   private svcUrl = 'https://www.wordtune.com/'
   private limitProxyCount = 100
 
-  constructor(s?: TWordTuneSettings) {
+  constructor(s?: TWtnSettings) {
     this.settings = { ...s }
   }
 
