@@ -3,15 +3,33 @@
 import { WtnSvc } from '.'
 
 const debug = async () => {
+  const proxies = [
+    { url: 'socks5://45.89.19.21:16739@FSOfa5:EZaEVDGtbm' },
+    { url: 'socks5://45.89.19.117:17807@FSOfa5:EZaEVDGtbm' },
+    { url: 'socks5://45.89.19.50:7167@FSOfa5:EZaEVDGtbm' },
+    { url: 'socks5://45.89.18.237:8135@FSOfa5:EZaEVDGtbm' },
+    { url: 'socks5://45.89.19.46:4919@FSOfa5:EZaEVDGtbm' },
+    { url: 'socks5://45.89.19.51:11939@FSOfa5:EZaEVDGtbm' },
+    { url: 'socks5://45.89.19.63:16725@FSOfa5:EZaEVDGtbm' },
+    { url: 'socks5://45.89.19.12:18473@FSOfa5:EZaEVDGtbm' },
+    { url: 'socks5://45.89.19.115:12069@FSOfa5:EZaEVDGtbm' },
+    { url: 'socks5://45.89.19.118:4099@FSOfa5:EZaEVDGtbm' }
+  ]
+
   const wtn = new WtnSvc({
     dbCacheName: 'test',
-    proxies: [{ url: 'https://test.ru@asd.ru:123:123' }]
+    proxies,
+    browserOpts: {
+      launchOpts: {
+        headless: false
+      }
+    }
   })
 
-  const proxy = await wtn.getProxy()
+  // const proxy = await wtn.getProxy()
   // console.log(proxy);
 
-  // console.log(await wtn.getSuggestions(`hello guys and girls`))
+  console.log(await wtn.getSuggestions(`hello guys and girls`))
 }
 
 debug()

@@ -15,7 +15,8 @@
     "preversion": "npm run lint",
     "version": "npm run format && git add -A src",
     "postversion": "git push && git push --tags",
-    "dev": "npm run build && node --trace-warnings --experimental-modules --es-module-specifier-resolution=node ./lib/debug.js"
+    "dev": "npm run build && node --trace-warnings --experimental-modules --es-module-specifier-resolution=node ./lib/debug.js",
+    "upg": "yarn upgrade --latest && yarn run build"
   },
   "repository": {
     "type": "git",
@@ -42,7 +43,7 @@
     "lib/**/*"
   ],
   "dependencies": {
-    "browser-manager": "^1.0.14",
+    "browser-manager": "^1.1.15",
     "dbtempo": "^1.0.2",
     "is-running-process": "^1.0.0",
     "lodash": "^4.17.21",

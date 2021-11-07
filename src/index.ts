@@ -47,8 +47,12 @@ export class WtnSvc {
     }
 
     if (proxy?.url) {
+      const atSplit = proxy.url.split('@')
+      const [username, password] = atSplit[1]?.split(':') || []
       launchOpts.proxy = {
-        server: proxy.url
+        server: atSplit[0],
+        username,
+        password
       }
     }
 
@@ -60,6 +64,7 @@ export class WtnSvc {
         ...browserOpts,
         launchOpts
       })
+
       const page = await pwrt?.newPage({
         url: this.svcUrl,
         waitUntil: 'networkidle'
