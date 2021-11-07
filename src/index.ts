@@ -145,8 +145,8 @@ export class WtnSvc {
         headers: {
           'cache-control': 'no-cache',
           'content-type': 'application/json'
-          //"userid": "deviceId-mQEG34Al9yPCMsSUnVK9s3",
-          //"x-wordtune-origin": "https://www.wordtune.com"
+          // "userid": "deviceId-mQEG34Al9yPCMsSUnVK9s3",
+          // "x-wordtune-origin": "https://www.wordtune.com"
         },
         body: `{"action":"REWRITE","text":"${text}","start":0,"end":290,"selection":{"wholeText":"${text}","start":0,"end":290}}`,
         method: 'POST',
