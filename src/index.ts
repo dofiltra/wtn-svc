@@ -8,6 +8,7 @@ export type TWtnSettings = {
   dbCacheName?: string
   proxies?: { url: string }[]
   browserOpts?: TBrowserOpts
+  allowUseBrowser?: boolean
 }
 
 export const WTN_MAX_LENGTH = 280
@@ -22,7 +23,7 @@ export class WtnSvc {
   }
 
   async getSuggestions(text: string) {
-    const { dbCacheName = `suggestions-{YYYY}-{MM}-{DD}.json`, browserOpts } = this.settings
+    const { dbCacheName = `suggestions-{YYYY}-{MM}-{DD}.json`, allowUseBrowser = false } = this.settings
 
     if (!text?.length || text.length > WTN_MAX_LENGTH) {
       return { result: [text] }
@@ -41,22 +42,63 @@ export class WtnSvc {
     // TODO: if errors > 10 permanent, then return [text]
     // TODO: if (!proxy?.url) { return }
 
-    const launchOpts: LaunchOptions = {
-      headless: true,
-      ...browserOpts?.launchOpts
+    try {
+      let { result: suggestions } = await this.getFetchSuggestions(text)
+      if (!suggestions && allowUseBrowser) {
+        suggestions = await this.getBrowserSuggestions(text, proxy)
+      }
+
+      if (suggestions?.length) {
+        db.add({
+          [`${Date.now()}_${_.random(1e5, 1e6)}`]: {
+            text,
+            suggestions
+          }
+        })
+        return { result: suggestions }
+      }
+    } catch (error: any) {
+      return { result: [text], error }
+    }
+  }
+
+  async getProxy() {
+    const { proxies = [] } = this.settings
+    const db = new LowDbKv({
+      dbName: `proxy-{YYYY}-{MM}-{DD}.json`
+    })
+
+    for (const proxy of _.shuffle(proxies)) {
+      let { result = 0 } = await db.get(proxy.url)
+      if (result >= this.limitProxyCount) {
+        continue
+      }
+      db.add({ [proxy.url]: ++result })
+      return proxy
     }
 
-    if (proxy?.url) {
-      const atSplit = proxy.url.split('@')
-      const [username, password] = atSplit[1]?.split(':') || []
-      launchOpts.proxy = {
-        server: atSplit[0],
-        username,
-        password
-      }
-    }
+    return null
+  }
+
+  private async getBrowserSuggestions(text: string, proxy?: { url: string } | null) {
+    const { browserOpts } = this.settings
 
     try {
+      const launchOpts: LaunchOptions = {
+        headless: true,
+        ...browserOpts?.launchOpts
+      }
+
+      if (proxy?.url) {
+        const atSplit = proxy.url.split('@')
+        const [username, password] = atSplit[1]?.split(':') || []
+        launchOpts.proxy = {
+          server: atSplit[0],
+          username,
+          password
+        }
+      }
+
       const pwrt = await BrowserManager.build<BrowserManager>({
         idleCloseSeconds: 300,
         lockCloseFirst: 300,
@@ -80,37 +122,27 @@ export class WtnSvc {
       const respResult: any = await pwrt?.getRespResult(page, 'rewrite-limited', text)
       await pwrt?.close('from getSuggestions 2')
 
-      if (respResult?.suggestions?.length) {
-        db.add({
-          [`${Date.now()}_${_.random(1e5, 1e6)}`]: {
-            text,
-            suggestions: respResult.suggestions
-          }
-        })
-        return { result: respResult.suggestions }
-      }
-    } catch (error: any) {
-      return { result: [text], error }
-    }
-
-    return { result: [text] }
+      return { result: respResult }
+    } catch (error: any) {}
   }
 
-  async getProxy() {
-    const { proxies = [] } = this.settings
-    const db = new LowDbKv({
-      dbName: `proxy-{YYYY}-{MM}-{DD}.json`
-    })
+  private async getFetchSuggestions(text: string, proxy?: { url: string } | null) {
+    try {
+      const resp = await fetch('https://api.wordtune.com/rewrite-limited', {
+        headers: {
+          'cache-control': 'no-cache',
+          'content-type': 'application/json'
+          //"userid": "deviceId-mQEG34Al9yPCMsSUnVK9s3",
+          //"x-wordtune-origin": "https://www.wordtune.com"
+        },
+        body: `{"action":"REWRITE","text":"${text}","start":0,"end":290,"selection":{"wholeText":"${text}","start":0,"end":290}}`,
+        method: 'POST'
+      })
+      const data = (await resp.json()) as any
 
-    for (const proxy of _.shuffle(proxies)) {
-      let { result = 0 } = await db.get(proxy.url)
-      if (result >= this.limitProxyCount) {
-        continue
-      }
-      db.add({ [proxy.url]: ++result })
-      return proxy
+      return { result: data }
+    } catch (error: any) {
+      return { error }
     }
-
-    return null
   }
 }
