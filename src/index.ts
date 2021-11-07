@@ -2,6 +2,7 @@ import _ from 'lodash'
 import { BrowserManager, LaunchOptions } from 'browser-manager'
 import { LowDbKv } from 'dbtempo'
 import { TBrowserOpts } from 'browser-manager/lib/types'
+import { getFetchHap } from './fetch'
 // import { extractProxy } from 'proxy-extract'
 
 export type TWtnSettings = {
@@ -39,13 +40,21 @@ export class WtnSvc {
     }
 
     const proxy = await this.getProxy()
+
     // TODO: if errors > 10 permanent, then return [text]
     // TODO: if (!proxy?.url) { return }
 
     try {
-      let { result: suggestions } = await this.getFetchSuggestions(text)
-      if (!suggestions && allowUseBrowser) {
-        suggestions = await this.getBrowserSuggestions(text, proxy)
+      const { result: data } = await this.getFetchSuggestions(text, proxy)
+      let suggestions = data?.suggestions
+
+      if (!suggestions?.length && allowUseBrowser) {
+        const { result } = await this.getBrowserSuggestions(text, proxy)
+        suggestions = result.suggestions
+      }
+
+      if (!suggestions?.length) {
+        return { result: [text] }
       }
 
       if (suggestions?.length) {
@@ -114,7 +123,7 @@ export class WtnSvc {
 
       if (!page) {
         await pwrt?.close('from getSuggestions 1')
-        return { result: [text] }
+        return { result: null }
       }
 
       await page.type('#widget-textarea', text)
@@ -123,12 +132,16 @@ export class WtnSvc {
       await pwrt?.close('from getSuggestions 2')
 
       return { result: respResult }
-    } catch (error: any) {}
+    } catch (error: any) {
+      return { error }
+    }
   }
 
   private async getFetchSuggestions(text: string, proxy?: { url: string } | null) {
     try {
-      const resp = await fetch('https://api.wordtune.com/rewrite-limited', {
+      const fh = await getFetchHap()
+
+      const resp = await fh('https://api.wordtune.com/rewrite-limited', {
         headers: {
           'cache-control': 'no-cache',
           'content-type': 'application/json'
@@ -136,7 +149,9 @@ export class WtnSvc {
           //"x-wordtune-origin": "https://www.wordtune.com"
         },
         body: `{"action":"REWRITE","text":"${text}","start":0,"end":290,"selection":{"wholeText":"${text}","start":0,"end":290}}`,
-        method: 'POST'
+        method: 'POST',
+        timeout: 60e3,
+        proxy: proxy?.url
       })
       const data = (await resp.json()) as any
 

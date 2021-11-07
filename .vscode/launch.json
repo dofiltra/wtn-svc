@@ -6,7 +6,7 @@
   "configurations": [
     {
       "command": "yarn run dev",
-      "name": "Run npm start",
+      "name": "Run npm dev",
       "request": "launch",
       "type": "node-terminal"
     },
