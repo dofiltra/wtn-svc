@@ -15,6 +15,6 @@ export const getFetchHap = async (opts?: FetchOptions) => {
     timeout: 30e3,
     ...opts,
     compress,
-    headers,
+    headers
   })
 }
