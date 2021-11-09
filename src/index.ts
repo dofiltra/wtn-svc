@@ -40,21 +40,27 @@ export class WtnSvc {
     }
 
     const proxy = await this.getProxy()
+    const errors: any = {}
 
     // TODO: if errors > 10 permanent, then return [text]
     // TODO: if (!proxy?.url) { return }
 
     try {
-      const { result: data } = await this.getFetchSuggestions(text, proxy)
+      const { result: data, error: fetchError } = await this.getFetchSuggestions(text, proxy)
       let suggestions = data?.suggestions
+      errors.fetchError = fetchError
 
       if (!suggestions?.length && allowUseBrowser) {
-        const { result } = await this.getBrowserSuggestions(text, proxy)
+        const { result, error: browserError } = await this.getBrowserSuggestions(text, proxy)
         suggestions = result.suggestions
+        errors.browserError = browserError
       }
 
       if (!suggestions?.length) {
-        return { result: [text] }
+        return {
+          result: [text],
+          errors
+        }
       }
 
       if (suggestions?.length) {
@@ -64,10 +70,16 @@ export class WtnSvc {
             suggestions
           }
         })
-        return { result: suggestions }
+        return { result: suggestions, errors }
       }
     } catch (error: any) {
-      return { result: [text], error }
+      return {
+        result: [text],
+        errors: {
+          ...errors,
+          error
+        }
+      }
     }
   }
 
