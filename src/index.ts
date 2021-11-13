@@ -3,7 +3,6 @@ import { BrowserManager, LaunchOptions } from 'browser-manager'
 import { LowDbKv } from 'dbtempo'
 import { TBrowserOpts } from 'browser-manager/lib/types'
 import { getFetchHap } from './fetch'
-// import { extractProxy } from 'proxy-extract'
 
 export type TWtnSettings = {
   dbCacheName?: string
