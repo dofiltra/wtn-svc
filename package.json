@@ -1,6 +1,6 @@
 {
   "name": "wtn-svc",
-  "version": "1.1.18",
+  "version": "1.1.19",
   "description": "",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -45,7 +45,7 @@
   ],
   "dependencies": {
     "browser-manager": "^1.1.15",
-    "dbtempo": "^1.0.3",
+    "dbtempo": "^1.0.4",
     "is-running-process": "^1.0.0",
     "lodash": "^4.17.21",
     "make-fetch-happen": "^9.1.0",
