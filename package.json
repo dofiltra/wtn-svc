@@ -32,7 +32,7 @@
   },
   "homepage": "https://github.com/Ty4ka/wtn-svc#readme",
   "devDependencies": {
-    "@types/lodash": "^4.14.173",
+    "@types/lodash": "^4.14.177",
     "@types/make-fetch-happen": "^9.0.1",
     "@types/node": "^16.11.7",
     "prettier": "^2.4.1",
