@@ -44,7 +44,7 @@
     "lib/**/*"
   ],
   "dependencies": {
-    "browser-manager": "^1.1.15",
+    "browser-manager": "^1.1.16",
     "dbtempo": "^1.0.5",
     "is-running-process": "^1.0.0",
     "lodash": "^4.17.21",
