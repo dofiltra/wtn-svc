@@ -24,7 +24,7 @@ export class WtnSvc {
   }
 
   async getSuggestions(text: string) {
-    const { dbCacheName = `suggestions-{YYYY}-{MM}-{DD}.json`, allowUseBrowser = false } = this.settings
+    const { token, dbCacheName = `suggestions-{YYYY}-{MM}-{DD}.json`, allowUseBrowser = false } = this.settings
 
     if (!text?.length || text.length > WTN_MAX_LENGTH) {
       return { result: [text] }
@@ -39,20 +39,37 @@ export class WtnSvc {
       return { result: existItem.result.suggestions }
     }
 
-    const proxy = await this.getProxy()
     const errors: any = {}
 
-    // TODO: if errors > 10 permanent, then return [text]
-    // TODO: if (!proxy?.url) { return }
-
     try {
-      const { result: data, error: fetchError } = await this.getFetchSuggestions(text, proxy)
-      let suggestions = data?.suggestions
-      errors.fetchError = fetchError
+      let suggestions = []
+      let proxy: any = null
+
+      if (token) {
+        const { result: apiResult, error: apiError } = await this.getApiSuggestions(text, token)
+        suggestions = apiResult?.suggestions
+        errors.apiError = apiError
+      }
+
+      if (!suggestions?.length) {
+        proxy ||= this.getProxy()
+
+        // TODO: if errors > 10 permanent, then return [text]
+        // TODO: if (!proxy?.url) { return }
+
+        const { result: fetchFreeResult, error: fetchError } = await this.getFetchSuggestions(text, proxy)
+        suggestions = fetchFreeResult?.suggestions
+        errors.fetchError = fetchError
+      }
 
       if (!suggestions?.length && allowUseBrowser) {
-        const { result, error: browserError } = await this.getBrowserSuggestions(text, proxy)
-        suggestions = result.suggestions
+        proxy ||= this.getProxy()
+
+        // TODO: if errors > 10 permanent, then return [text]
+        // TODO: if (!proxy?.url) { return }
+
+        const { result: browserResult, error: browserError } = await this.getBrowserSuggestions(text, proxy)
+        suggestions = browserResult.suggestions
         errors.browserError = browserError
       }
 
@@ -63,15 +80,13 @@ export class WtnSvc {
         }
       }
 
-      if (suggestions?.length) {
-        db.add({
-          [`${Date.now()}_${_.random(1e5, 1e6)}`]: {
-            text,
-            suggestions
-          }
-        })
-        return { result: suggestions, errors }
-      }
+      db.add({
+        [`${Date.now()}_${_.random(1e5, 1e6)}`]: {
+          text,
+          suggestions
+        }
+      })
+      return { result: suggestions, errors }
     } catch (error: any) {
       return {
         result: [text],
@@ -165,9 +180,33 @@ export class WtnSvc {
         timeout: 60e3,
         proxy: proxy?.url
       })
-      const data = (await resp.json()) as any
+      const result = (await resp.json()) as any
 
-      return { result: data }
+      return { result }
+    } catch (error: any) {
+      return { error }
+    }
+  }
+
+  private async getApiSuggestions(text: string, token: string, proxy?: { url: string } | null) {
+    try {
+      const fh = await getFetchHap()
+      const resp = await fh('https://api.wordtune.com/rewrite', {
+        headers: {
+          'cache-control': 'no-cache',
+          'content-type': 'application/json',
+          token
+          // "userid": "deviceId-mQEG34Al9yPCMsSUnVK9s3",
+          // "x-wordtune-origin": "https://www.wordtune.com"
+        },
+        body: `{"text":"${text}","action":"REWRITE","start":0,"end":290,"selection":{"wholeText":"${text}","bulletText":"","start":0,"end":290},"draftId":"DIV_editorContentEditable_jss24 jss25-1638001581177","emailAccount":null,"emailMetadata":{},"lookaheadIndex":0,"isBatch":true}`,
+        method: 'POST',
+        timeout: 60e3,
+        proxy: proxy?.url
+      })
+      const result = (await resp.json()) as any
+
+      return { result }
     } catch (error: any) {
       return { error }
     }
