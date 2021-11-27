@@ -5,6 +5,7 @@ import { TBrowserOpts } from 'browser-manager/lib/types'
 import { getFetchHap } from './fetch'
 
 export type TWtnSettings = {
+  token?: string
   dbCacheName?: string
   proxies?: { url: string }[]
   browserOpts?: TBrowserOpts
