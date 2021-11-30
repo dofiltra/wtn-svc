@@ -18,7 +18,7 @@ export class WtnSvc {
   protected settings: TWtnSettings
   private svcUrl = 'https://www.wordtune.com/'
   private limitProxyCount = 100
-  private pauseTokens: { [token: string]: string } = {}
+  private static pauseTokens: { [token: string]: string } = {}
 
   constructor(s?: TWtnSettings) {
     this.settings = { ...s }
@@ -46,13 +46,13 @@ export class WtnSvc {
       let suggestions = []
       let proxy: any = null
 
-      if (token && !this.pauseTokens[token]) {
+      if (token && !WtnSvc.pauseTokens[token]) {
         const { result: apiResult, error: apiError } = await this.getApiSuggestions(text, token)
         suggestions = apiResult?.suggestions
         errors.apiError = apiError
 
         if (apiResult.detail && !suggestions.length) {
-          this.pauseTokens[token] = apiResult.detail
+          WtnSvc.pauseTokens[token] = apiResult.detail
         }
       }
 
