@@ -71,10 +71,10 @@
     "@types/node" "*"
     form-data "^3.0.0"
 
-"@types/node@*", "@types/node@^16.11.10":
-  version "16.11.10"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-16.11.10.tgz#2e3ad0a680d96367103d3e670d41c2fed3da61ae"
-  integrity sha512-3aRnHa1KlOEEhJ6+CvyHKK5vE9BcLGjtUpwvqYLRvYNQKMfabu3BwfJaA/SLW8dxe28LsNDjtHwePTuzn3gmOA==
+"@types/node@*", "@types/node@^16.11.11":
+  version "16.11.11"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-16.11.11.tgz#6ea7342dfb379ea1210835bada87b3c512120234"
+  integrity sha512-KB0sixD67CeecHC33MYn+eYARkqTheIRNuu97y2XMjR7Wu3XibO1vaY6VBV6O/a89SPI81cEUIYT87UqUWlZNw==
 
 "@types/retry@*":
   version "0.12.1"
@@ -158,10 +158,10 @@ brace-expansion@^1.1.7:
     balanced-match "^1.0.0"
     concat-map "0.0.1"
 
-browser-manager@^1.1.16:
-  version "1.1.16"
-  resolved "https://registry.yarnpkg.com/browser-manager/-/browser-manager-1.1.16.tgz#4200a64e4be120680688a8cca1a40a8d78377038"
-  integrity sha512-2IkqOB2ucc5xtOeUl8Q+1NccTSJHC+8pPAgPRskbzi0BgQF5x6rMmL3ax3UZUSiwdUCD7VxvhlR3IIGe1GSL6A==
+browser-manager@^1.1.17:
+  version "1.1.17"
+  resolved "https://registry.yarnpkg.com/browser-manager/-/browser-manager-1.1.17.tgz#242ab53bd2e40fe1a6f3d552b0c99f376613903c"
+  integrity sha512-gF02L3xAz+/jdB6OztC7r72H8P6usqQMzfakpMp8DU7if6K1mSa5J/CMY+TV0mqkfZYV2h4FHwXdIMCVNvQORA==
   dependencies:
     is-running-process "^1.0.0"
     lodash "^4.17.21"
@@ -281,10 +281,10 @@ concat-map@0.0.1:
   resolved "https://registry.yarnpkg.com/concat-map/-/concat-map-0.0.1.tgz#d8a96bd77fd68df7793a73036a3ba0d5405d477b"
   integrity sha1-2Klr13/Wjfd5OnMDajug1UBdR3s=
 
-dbtempo@^1.0.5:
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/dbtempo/-/dbtempo-1.0.5.tgz#b00adac1393947b31b5366e12b95b893eaf86156"
-  integrity sha512-azC5MbpDhxi0Jf+WDMhVt61X1TdnukRvH64DdSVuTB0RfI7U1G/du/Fyb6PaohbteXUhcaifMOmyasxMorQ/9Q==
+dbtempo@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/dbtempo/-/dbtempo-1.0.6.tgz#ddd9ea6f36014284d8ff6594510a463219acc4ad"
+  integrity sha512-fKbJ4jMia/dpeUpwF7c1BWExk10Uoy2gWUbCh1f03O28bPt1d5DNUMGWZulDT5SJM3WOEvZVyetEfdvXsjbTFw==
   dependencies:
     fs-extreme "^1.0.1"
     is-running-process "^1.0.0"
@@ -293,9 +293,9 @@ dbtempo@^1.0.5:
     time-helpers "^1.0.0"
 
 debug@4, debug@^4.1.0, debug@^4.1.1, debug@^4.3.1:
-  version "4.3.2"
-  resolved "https://registry.yarnpkg.com/debug/-/debug-4.3.2.tgz#f0a49c18ac8779e31d4a0c6029dfb76873c7428b"
-  integrity sha512-mOp8wKcvj7XxC78zLgw/ZA+6TSgkoE2C/ienthhRD298T7UNwAg9diBpLRxC0mOezLl4B0xV7M0cCO6P/O0Xhw==
+  version "4.3.3"
+  resolved "https://registry.yarnpkg.com/debug/-/debug-4.3.3.tgz#04266e0b70a98d4462e6e288e38259213332b664"
+  integrity sha512-/zxw5+vh1Tfv+4Qn7a5nsbcJKPaSvCDhojn6FEl9vupwK2VCSDtEiEtqr8DFtzYFOdz63LBkxec7DYuc2jon6Q==
   dependencies:
     ms "2.1.2"
 
@@ -761,10 +761,10 @@ pend@~1.2.0:
   resolved "https://registry.yarnpkg.com/pend/-/pend-1.2.0.tgz#7a57eb550a6783f9115331fcf4663d5c8e007a50"
   integrity sha1-elfrVQpng/kRUzH89GY9XI4AelA=
 
-playwright-core@=1.16.3:
-  version "1.16.3"
-  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.16.3.tgz#f466be9acaffb698654adfb0a17a4906ba936895"
-  integrity sha512-16hF27IvQheJee+DbhC941AUZLjbJgfZFWi9YPS4LKEk/lKFhZI+9TiFD0sboYqb9eaEWvul47uR5xxTVbE4iw==
+playwright-core@=1.17.0:
+  version "1.17.0"
+  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.17.0.tgz#4bb36367ea890e337f6074b866065be6d3e7d66d"
+  integrity sha512-9ZzKZwmK6G7O9+jtvIurL8efIbJQu3oW0kI4uuNreY3O2jQDWH6xNnD27HCaJN1/tHnw/OmdUC2AmMDZv3vNhQ==
   dependencies:
     commander "^8.2.0"
     debug "^4.1.1"
@@ -784,11 +784,11 @@ playwright-core@=1.16.3:
     yazl "^2.5.1"
 
 playwright@^1.16.3:
-  version "1.16.3"
-  resolved "https://registry.yarnpkg.com/playwright/-/playwright-1.16.3.tgz#27a292d9fa54fbac923998d3af58cd2b691f5ebe"
-  integrity sha512-nfJx/OpIb/8OexL3rYGxNN687hGyaM3XNpfuMzoPlrekURItyuiHHsNhC9oQCx3JDmCn5O3EyyyFCnrZjH6MpA==
+  version "1.17.0"
+  resolved "https://registry.yarnpkg.com/playwright/-/playwright-1.17.0.tgz#ad9918888737a1f310027a1fe2fd27f86ddd5e7e"
+  integrity sha512-rBBrdj5+iYFBSsMa7glK3MBaxkcXxHN7uW6pY7PzTB7xtGFTfdK0h0BPB7/vWiVIGOvz4Hy9g2UJNaZDHkAmgA==
   dependencies:
-    playwright-core "=1.16.3"
+    playwright-core "=1.17.0"
 
 pngjs@^5.0.0:
   version "5.0.0"
