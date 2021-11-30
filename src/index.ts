@@ -15,10 +15,11 @@ export type TWtnSettings = {
 export const WTN_MAX_LENGTH = 280
 
 export class WtnSvc {
+  private static pauseTokens: { [token: string]: string } = {}
+
   protected settings: TWtnSettings
   private svcUrl = 'https://www.wordtune.com/'
   private limitProxyCount = 100
-  private static pauseTokens: { [token: string]: string } = {}
 
   constructor(s?: TWtnSettings) {
     this.settings = { ...s }
@@ -51,7 +52,7 @@ export class WtnSvc {
         suggestions = apiResult?.suggestions
         errors.apiError = apiError
 
-        if (apiResult.detail && !suggestions.length) {
+        if (apiResult?.detail && !apiResult?.suggestions?.length) {
           WtnSvc.pauseTokens[token] = apiResult.detail
         }
       }
