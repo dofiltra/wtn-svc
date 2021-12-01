@@ -101,7 +101,7 @@ export class WtnSvc {
         }
       }
 
-      db.add({
+      await db.add({
         [`${Date.now()}_${_.random(1e5, 1e6)}`]: {
           text,
           suggestions
@@ -119,23 +119,6 @@ export class WtnSvc {
     }
   }
 
-  // async getProxy() {
-  //   const { proxies = [] } = this.settings
-  //   const db = new LowDbKv({
-  //     dbName: `proxy-{YYYY}-{MM}-{DD}.json`
-  //   })
-
-  //   for (const proxy of _.shuffle(proxies)) {
-  //     let { result = 0 } = await db.get(proxy.url)
-  //     if (result >= this.limitProxyCount) {
-  //       continue
-  //     }
-  //     db.add({ [proxy.url]: ++result })
-  //     return proxy
-  //   }
-
-  //   return null
-  // }
   async getProxy(opts?: TProxyOpts) {
     const { prior } = { ...opts }
     const { proxies = [] } = this.settings
