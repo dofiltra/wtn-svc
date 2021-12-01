@@ -159,6 +159,7 @@ export class WtnSvc {
         const usedCount = proxiesData[selectedProxy.url] || 0
         if (usedCount >= this.limitProxyCount) {
           await this.changeProxyIp(selectedProxy.changeUrl)
+          await this.proxyDb.add({ [selectedProxy.url]: 0 })
         }
       }
 
