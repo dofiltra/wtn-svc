@@ -87,9 +87,6 @@ export class WtnSvc {
       if (!suggestions?.length && allowUseBrowser) {
         proxy ||= await this.getProxy()
 
-        // TODO: if errors > 10 permanent, then return [text]
-        // TODO: if (!proxy?.url) { return }
-
         const { result: browserResult, error: browserError } = await this.getBrowserSuggestions(text, proxy)
         suggestions = browserResult.suggestions
         if (browserError) {
