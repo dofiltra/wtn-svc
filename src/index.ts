@@ -62,7 +62,7 @@ export class WtnSvc {
         if (apiError) {
           errors.apiError = apiError
         }
-        
+
         if (apiResult?.detail && !apiResult?.suggestions?.length) {
           WtnSvc.pauseTokens[token] = apiResult.detail
         }
