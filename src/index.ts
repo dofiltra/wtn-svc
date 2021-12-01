@@ -3,13 +3,18 @@ import { BrowserManager, LaunchOptions } from 'browser-manager'
 import { LowDbKv } from 'dbtempo'
 import { TBrowserOpts } from 'browser-manager/lib/types'
 import { getFetchHap } from './fetch'
+import { ProxyItem } from 'dprx-types'
 
 export type TWtnSettings = {
   token?: string
   dbCacheName?: string
-  proxies?: { url: string }[]
+  proxies?: ProxyItem[]
   browserOpts?: TBrowserOpts
   allowUseBrowser?: boolean
+}
+
+export type TProxyOpts = {
+  prior?: 'dynamic'
 }
 
 export const WTN_MAX_LENGTH = 280
@@ -18,8 +23,12 @@ export class WtnSvc {
   private static pauseTokens: { [token: string]: string } = {}
 
   protected settings: TWtnSettings
-  private svcUrl = 'https://www.wordtune.com/'
-  private limitProxyCount = 100
+  protected svcUrl = 'https://www.wordtune.com/'
+  protected limitProxyCount = 100
+
+  protected proxyDb = new LowDbKv({
+    dbName: `proxy-wtn-{YYYY}-{MM}-{DD}.json`
+  })
 
   constructor(s?: TWtnSettings) {
     this.settings = { ...s }
@@ -58,18 +67,20 @@ export class WtnSvc {
       }
 
       if (!suggestions?.length) {
-        proxy ||= this.getProxy()
-
-        // TODO: if errors > 10 permanent, then return [text]
-        // TODO: if (!proxy?.url) { return }
+        proxy ||= await this.getProxy({
+          prior: 'dynamic'
+        })
 
         const { result: fetchFreeResult, error: fetchError } = await this.getFetchSuggestions(text, proxy)
+        if (fetchFreeResult?.detail && !fetchFreeResult?.suggestions?.length) {
+          await this.incProxy(proxy?.url, this.limitProxyCount)
+        }
         suggestions = fetchFreeResult?.suggestions
         errors.fetchError = fetchError
       }
 
       if (!suggestions?.length && allowUseBrowser) {
-        proxy ||= this.getProxy()
+        proxy ||= await this.getProxy()
 
         // TODO: if errors > 10 permanent, then return [text]
         // TODO: if (!proxy?.url) { return }
@@ -104,22 +115,65 @@ export class WtnSvc {
     }
   }
 
-  async getProxy() {
-    const { proxies = [] } = this.settings
-    const db = new LowDbKv({
-      dbName: `proxy-{YYYY}-{MM}-{DD}.json`
-    })
+  // async getProxy() {
+  //   const { proxies = [] } = this.settings
+  //   const db = new LowDbKv({
+  //     dbName: `proxy-{YYYY}-{MM}-{DD}.json`
+  //   })
 
-    for (const proxy of _.shuffle(proxies)) {
-      let { result = 0 } = await db.get(proxy.url)
-      if (result >= this.limitProxyCount) {
-        continue
+  //   for (const proxy of _.shuffle(proxies)) {
+  //     let { result = 0 } = await db.get(proxy.url)
+  //     if (result >= this.limitProxyCount) {
+  //       continue
+  //     }
+  //     db.add({ [proxy.url]: ++result })
+  //     return proxy
+  //   }
+
+  //   return null
+  // }
+  async getProxy(opts?: TProxyOpts) {
+    const { prior } = { ...opts }
+    const { proxies = [] } = this.settings
+    const proxiesData = (await this.proxyDb.getData()) || {}
+
+    let sortProxies = proxies
+      .filter((p) => !proxiesData[p.url] || proxiesData[p.url] < this.limitProxyCount)
+      .sort((a, b) => {
+        const aVal = proxiesData[a.url] || 0
+        const bVal = proxiesData[b.url] || 0
+
+        return aVal - bVal
+      })
+
+    if (prior) {
+      const dynamicProxies = sortProxies.filter((p) => p.changeUrl)
+      if (dynamicProxies.length) {
+        sortProxies = dynamicProxies
       }
-      db.add({ [proxy.url]: ++result })
-      return proxy
     }
 
-    return null
+    const selectedProxy = sortProxies[0]
+    if (selectedProxy) {
+      if (selectedProxy.changeUrl) {
+        const usedCount = proxiesData[selectedProxy.url] || 0
+        if (usedCount >= this.limitProxyCount) {
+          await this.changeProxyIp(selectedProxy.changeUrl)
+        }
+      }
+
+      this.incProxy(selectedProxy.url)
+      return selectedProxy
+    }
+
+    return
+  }
+  async incProxy(proxyUrl?: string, inc = 1) {
+    if (!proxyUrl) {
+      return
+    }
+    const { result = 0 } = await this.proxyDb.get(proxyUrl)
+    this.proxyDb.add({ [proxyUrl]: result + inc })
   }
 
   private async getBrowserSuggestions(text: string, proxy?: { url: string } | null) {
@@ -213,6 +267,27 @@ export class WtnSvc {
       const result = (await resp.json()) as any
 
       return { result }
+    } catch (error: any) {
+      return { error }
+    }
+  }
+
+  async changeProxyIp(url: string) {
+    try {
+      if (!url.startsWith('http')) {
+        url = `http://${url}`
+      }
+      const fh = await getFetchHap()
+      const resp = await fh(url, {
+        headers: {
+          'cache-control': 'no-cache',
+          'content-type': 'application/json'
+        },
+        method: 'GET',
+        timeout: 60e3
+      })
+
+      return { result: await resp.json() }
     } catch (error: any) {
       return { error }
     }

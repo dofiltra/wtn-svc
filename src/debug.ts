@@ -4,6 +4,7 @@ import { WtnSvc } from '.'
 import dotenv from 'dotenv'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import { ProxyItem } from 'dprx-types'
 
 const debug = async () => {
   const rootPath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
@@ -14,12 +15,19 @@ const debug = async () => {
     Math.random()
 
   const proxies = [
-    { url: 'http://FSOfa5:EZaEVDGtbm@45.89.19.21:16738' }
-    //
+    new ProxyItem({
+      type: process.env.PROXY_TYPE,
+      ip: process.env.PROXY_IP!,
+      port: process.env.PROXY_PORT,
+      changeUrl: process.env.PROXY_CHANGE_URL!,
+      user: process.env.PROXY_USER,
+      pass: process.env.PROXY_PASS,
+      version: 4
+    } as ProxyItem)
   ]
 
   const wtn = new WtnSvc({
-    token: process.env.TOKEN,
+    token: process.env.WTNTOKEN,
     dbCacheName: 'test_' + Math.random(),
     proxies,
     browserOpts: {
@@ -29,10 +37,11 @@ const debug = async () => {
     }
   })
 
+  // const changeUrlResult = await wtn.changeProxyIp(proxies[0].changeUrl!)
   // const proxy = await wtn.getProxy()
-  // console.log(proxy);
+  // console.log(proxy)
 
-  console.log(await wtn.getSuggestions(text))
+  // console.log(await wtn.getSuggestions(text))
 }
 
 debug()
