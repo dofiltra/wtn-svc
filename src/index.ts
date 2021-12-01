@@ -174,7 +174,7 @@ export class WtnSvc {
       return
     }
     const { result = 0 } = await this.proxyDb.get(proxyUrl)
-    this.proxyDb.add({ [proxyUrl]: result + inc })
+    await this.proxyDb.add({ [proxyUrl]: result + inc })
   }
 
   private async getBrowserSuggestions(text: string, proxy?: { url: string } | null) {
@@ -236,7 +236,13 @@ export class WtnSvc {
           // "userid": "deviceId-mQEG34Al9yPCMsSUnVK9s3",
           // "x-wordtune-origin": "https://www.wordtune.com"
         },
-        body: `{"action":"REWRITE","text":"${text}","start":0,"end":290,"selection":{"wholeText":"${text}","start":0,"end":290}}`,
+        body: JSON.stringify({
+          action: 'REWRITE',
+          text: `${text}`,
+          start: 0,
+          end: 290,
+          selection: { wholeText: `${text}`, start: 0, end: 290 }
+        }),
         method: 'POST',
         timeout: 60e3,
         proxy: proxy?.url
@@ -260,7 +266,18 @@ export class WtnSvc {
           // "userid": "deviceId-mQEG34Al9yPCMsSUnVK9s3",
           // "x-wordtune-origin": "https://www.wordtune.com"
         },
-        body: `{"text":"${text}","action":"REWRITE","start":0,"end":290,"selection":{"wholeText":"${text}","bulletText":"","start":0,"end":290},"draftId":"DIV_editorContentEditable_jss24 jss25-1638001581177","emailAccount":null,"emailMetadata":{},"lookaheadIndex":0,"isBatch":true}`,
+        body: JSON.stringify({
+          text: `${text}`,
+          action: 'REWRITE',
+          start: 0,
+          end: 290,
+          selection: { wholeText: `${text}`, bulletText: '', start: 0, end: 290 },
+          draftId: 'DIV_editorContentEditable_jss24 jss25-1638001581177',
+          emailAccount: null,
+          emailMetadata: {},
+          lookaheadIndex: 0,
+          isBatch: true
+        }),
         method: 'POST',
         timeout: 60e3,
         proxy: proxy?.url
