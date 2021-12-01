@@ -59,8 +59,10 @@ export class WtnSvc {
       if (token && !WtnSvc.pauseTokens[token]) {
         const { result: apiResult, error: apiError } = await this.getApiSuggestions(text, token)
         suggestions = apiResult?.suggestions
-        errors.apiError = apiError
-
+        if (apiError) {
+          errors.apiError = apiError
+        }
+        
         if (apiResult?.detail && !apiResult?.suggestions?.length) {
           WtnSvc.pauseTokens[token] = apiResult.detail
         }
@@ -76,7 +78,10 @@ export class WtnSvc {
           await this.incProxy(proxy?.url, this.limitProxyCount)
         }
         suggestions = fetchFreeResult?.suggestions
-        errors.fetchError = fetchError
+
+        if (fetchError) {
+          errors.fetchError = fetchError
+        }
       }
 
       if (!suggestions?.length && allowUseBrowser) {
@@ -87,7 +92,9 @@ export class WtnSvc {
 
         const { result: browserResult, error: browserError } = await this.getBrowserSuggestions(text, proxy)
         suggestions = browserResult.suggestions
-        errors.browserError = browserError
+        if (browserError) {
+          errors.browserError = browserError
+        }
       }
 
       if (!suggestions?.length) {
