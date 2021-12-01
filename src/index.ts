@@ -138,7 +138,7 @@ export class WtnSvc {
     const proxiesData = (await this.proxyDb.getData()) || {}
 
     let sortProxies = proxies
-      .filter((p) => !proxiesData[p.url] || proxiesData[p.url] < this.limitProxyCount)
+      .filter((p) => p.changeUrl || (proxiesData[p.url] || 0) < this.limitProxyCount)
       .sort((a, b) => {
         const aVal = proxiesData[a.url] || 0
         const bVal = proxiesData[b.url] || 0
