@@ -47,7 +47,7 @@
     "browser-manager": "^1.1.17",
     "dbtempo": "^1.0.6",
     "dotenv": "^10.0.0",
-    "dprx-types": "^1.0.36",
+    "dprx-types": "^1.0.37",
     "is-running-process": "^1.0.0",
     "lodash": "^4.17.21",
     "make-fetch-happen": "^9.1.0",

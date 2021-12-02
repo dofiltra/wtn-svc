@@ -54,7 +54,7 @@ export class WtnSvc {
 
     try {
       let suggestions = []
-      let proxy: any = null
+      let proxy: ProxyItem | undefined
 
       if (token && !WtnSvc.pauseTokens[token]) {
         const { result: apiResult, error: apiError } = await this.getApiSuggestions(text, token)
@@ -75,7 +75,7 @@ export class WtnSvc {
 
         const { result: fetchFreeResult, error: fetchError } = await this.getFetchSuggestions(text, proxy)
         if (fetchFreeResult?.detail && !fetchFreeResult?.suggestions?.length) {
-          await this.incProxy(proxy?.url, this.limitProxyCount)
+          await this.incProxy(proxy?.url(), this.limitProxyCount)
         }
         suggestions = fetchFreeResult?.suggestions
 
@@ -125,10 +125,10 @@ export class WtnSvc {
     const proxiesData = (await this.proxyDb.getData()) || {}
 
     let sortProxies = proxies
-      .filter((p) => p.changeUrl || (proxiesData[p.url] || 0) < this.limitProxyCount)
+      .filter((p) => p.changeUrl || (proxiesData[p.url()] || 0) < this.limitProxyCount)
       .sort((a, b) => {
-        const aVal = proxiesData[a.url] || 0
-        const bVal = proxiesData[b.url] || 0
+        const aVal = proxiesData[a.url()] || 0
+        const bVal = proxiesData[b.url()] || 0
 
         return aVal - bVal
       })
@@ -143,14 +143,14 @@ export class WtnSvc {
     const selectedProxy = sortProxies[0]
     if (selectedProxy) {
       if (selectedProxy.changeUrl) {
-        const usedCount = proxiesData[selectedProxy.url] || 0
+        const usedCount = proxiesData[selectedProxy.url()] || 0
         if (usedCount >= this.limitProxyCount) {
           await this.changeProxyIp(selectedProxy.changeUrl)
-          await this.proxyDb.add({ [selectedProxy.url]: 0 })
+          await this.proxyDb.add({ [selectedProxy.url()]: 0 })
         }
       }
 
-      this.incProxy(selectedProxy.url)
+      this.incProxy(selectedProxy.url())
       return selectedProxy
     }
 
@@ -164,7 +164,7 @@ export class WtnSvc {
     await this.proxyDb.add({ [proxyUrl]: result + inc })
   }
 
-  private async getBrowserSuggestions(text: string, proxy?: { url: string } | null) {
+  private async getBrowserSuggestions(text: string, proxy?: ProxyItem) {
     const { browserOpts } = this.settings
 
     try {
@@ -174,7 +174,7 @@ export class WtnSvc {
       }
 
       if (proxy?.url) {
-        const atSplit = proxy.url.split('@')
+        const atSplit = proxy.url().split('@')
         const [username, password] = atSplit[1]?.split(':') || []
         launchOpts.proxy = {
           server: atSplit[0],
@@ -212,7 +212,7 @@ export class WtnSvc {
     }
   }
 
-  private async getFetchSuggestions(text: string, proxy?: { url: string } | null) {
+  private async getFetchSuggestions(text: string, proxy?: ProxyItem) {
     try {
       const fh = await getFetchHap()
 
@@ -232,7 +232,7 @@ export class WtnSvc {
         }),
         method: 'POST',
         timeout: 60e3,
-        proxy: proxy?.url
+        proxy: proxy?.url()
       })
       const result = (await resp.json()) as any
 

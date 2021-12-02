@@ -319,10 +319,10 @@ dotenv@^10.0.0:
   resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-10.0.0.tgz#3d4227b8fb95f81096cdd2b66653fb2c7085ba81"
   integrity sha512-rlBi9d8jpv9Sf1klPjNfFAuWDjKLwTIJJ/VxtoTwIR6hnZxcEOQCZg2oIL3MWBYw5GpUDKOEnND7LXTbIpQ03Q==
 
-dprx-types@^1.0.36:
-  version "1.0.36"
-  resolved "https://registry.yarnpkg.com/dprx-types/-/dprx-types-1.0.36.tgz#5ee9fc1e26602b60c43667870c75fb7c2dc0b9b1"
-  integrity sha512-bVPodR479UTiYWNGfMpuT3qdtJw1Mocm4lrVG/744QbNP47X7GW/I7Mv1x0a9Yt+sFsMjfKo9Izt7WcM99BZ1A==
+dprx-types@^1.0.37:
+  version "1.0.37"
+  resolved "https://registry.yarnpkg.com/dprx-types/-/dprx-types-1.0.37.tgz#94d1532d0976ae1d72e52c48e3adf7bf4045437b"
+  integrity sha512-4QE2cj6zNxSNNyh1OHo7LqBt13+iBedibEQbcxjPBz7vZo2Orfo1zjD6GwKaXAbnSF5tE4JODqzbyTUDOTbADQ==
   dependencies:
     dotenv "^10.0.0"
     esm-requirer "^1.0.3"
@@ -770,10 +770,10 @@ pend@~1.2.0:
   resolved "https://registry.yarnpkg.com/pend/-/pend-1.2.0.tgz#7a57eb550a6783f9115331fcf4663d5c8e007a50"
   integrity sha1-elfrVQpng/kRUzH89GY9XI4AelA=
 
-playwright-core@=1.17.0:
-  version "1.17.0"
-  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.17.0.tgz#4bb36367ea890e337f6074b866065be6d3e7d66d"
-  integrity sha512-9ZzKZwmK6G7O9+jtvIurL8efIbJQu3oW0kI4uuNreY3O2jQDWH6xNnD27HCaJN1/tHnw/OmdUC2AmMDZv3vNhQ==
+playwright-core@=1.17.1:
+  version "1.17.1"
+  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.17.1.tgz#a16e0f89284a0ed8ae6d77e1c905c84b8a2ba022"
+  integrity sha512-C3c8RpPiC3qr15fRDN6dx6WnUkPLFmST37gms2aoHPDRvp7EaGDPMMZPpqIm/QWB5J40xDrQCD4YYHz2nBTojQ==
   dependencies:
     commander "^8.2.0"
     debug "^4.1.1"
@@ -793,11 +793,11 @@ playwright-core@=1.17.0:
     yazl "^2.5.1"
 
 playwright@^1.16.3:
-  version "1.17.0"
-  resolved "https://registry.yarnpkg.com/playwright/-/playwright-1.17.0.tgz#ad9918888737a1f310027a1fe2fd27f86ddd5e7e"
-  integrity sha512-rBBrdj5+iYFBSsMa7glK3MBaxkcXxHN7uW6pY7PzTB7xtGFTfdK0h0BPB7/vWiVIGOvz4Hy9g2UJNaZDHkAmgA==
+  version "1.17.1"
+  resolved "https://registry.yarnpkg.com/playwright/-/playwright-1.17.1.tgz#a6d63302ee40f41283c4bf869de261c4743a787c"
+  integrity sha512-DisCkW9MblDJNS3rG61p8LiLA2WA7IY/4A4W7DX4BphWe/HuWjKmGQptuk4NVIh5UuSwXpW/jaH2+ZgjHs3GMA==
   dependencies:
-    playwright-core "=1.17.0"
+    playwright-core "=1.17.1"
 
 pngjs@^5.0.0:
   version "5.0.0"
