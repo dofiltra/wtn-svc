@@ -125,14 +125,8 @@ export class WtnSvc {
         ...browserOpts?.launchOpts
       }
 
-      if (proxy?.url) {
-        const atSplit = proxy.url().split('@')
-        const [username, password] = atSplit[1]?.split(':') || []
-        launchOpts.proxy = {
-          server: atSplit[0],
-          username,
-          password
-        }
+      if (proxy?.url()) {
+        launchOpts.proxy = proxy.toPwrt()
       }
 
       const pwrt = await BrowserManager.build<BrowserManager>({
