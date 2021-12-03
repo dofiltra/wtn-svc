@@ -33,7 +33,6 @@
   "homepage": "https://github.com/Ty4ka/wtn-svc#readme",
   "devDependencies": {
     "@types/lodash": "^4.14.177",
-    "@types/make-fetch-happen": "^9.0.1",
     "@types/node": "^16.11.11",
     "prettier": "^2.5.0",
     "tslint": "^6.1.3",
@@ -47,10 +46,9 @@
     "browser-manager": "^1.1.17",
     "dbtempo": "^1.0.6",
     "dotenv": "^10.0.0",
-    "dprx-types": "^1.0.37",
+    "dprx-types": "^1.1.0",
     "is-running-process": "^1.0.0",
     "lodash": "^4.17.21",
-    "make-fetch-happen": "^9.1.0",
     "time-helpers": "^1.0.0"
   }
 }

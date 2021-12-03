@@ -2,13 +2,12 @@ import _ from 'lodash'
 import { BrowserManager, LaunchOptions } from 'browser-manager'
 import { LowDbKv } from 'dbtempo'
 import { TBrowserOpts } from 'browser-manager/lib/types'
-import { getFetchHap } from './fetch'
-import { ProxyItem } from 'dprx-types'
+import { getFetchHap, Proxifible, ProxyItem } from 'dprx-types'
 
 export type TWtnSettings = {
   token?: string
   dbCacheName?: string
-  proxies?: ProxyItem[]
+  // proxies?: ProxyItem[]
   browserOpts?: TBrowserOpts
   allowUseBrowser?: boolean
 }
@@ -25,10 +24,6 @@ export class WtnSvc {
   protected settings: TWtnSettings
   protected svcUrl = 'https://www.wordtune.com/'
   protected limitProxyCount = 100
-
-  protected proxyDb = new LowDbKv({
-    dbName: `proxy-wtn-{YYYY}-{MM}-{DD}.json`
-  })
 
   constructor(s?: TWtnSettings) {
     this.settings = { ...s }
@@ -69,13 +64,13 @@ export class WtnSvc {
       }
 
       if (!suggestions?.length) {
-        proxy ||= await this.getProxy({
-          prior: 'dynamic'
+        proxy ||= await Proxifible.getProxy({
+          sortBy: ['changeUrl', 'useCount']
         })
 
         const { result: fetchFreeResult, error: fetchError } = await this.getFetchSuggestions(text, proxy)
         if (fetchFreeResult?.detail && !fetchFreeResult?.suggestions?.length) {
-          await this.incProxy(proxy?.url(), this.limitProxyCount)
+          await Proxifible.incProxy(proxy?.url(), Number.MAX_SAFE_INTEGER)
         }
         suggestions = fetchFreeResult?.suggestions
 
@@ -85,7 +80,9 @@ export class WtnSvc {
       }
 
       if (!suggestions?.length && allowUseBrowser) {
-        proxy ||= await this.getProxy()
+        proxy ||= await Proxifible.getProxy({
+          filterTypes: ['http', 'https']
+        })
 
         const { result: browserResult, error: browserError } = await this.getBrowserSuggestions(text, proxy)
         suggestions = browserResult.suggestions
@@ -117,51 +114,6 @@ export class WtnSvc {
         }
       }
     }
-  }
-
-  async getProxy(opts?: TProxyOpts) {
-    const { prior } = { ...opts }
-    const { proxies = [] } = this.settings
-    const proxiesData = (await this.proxyDb.getData()) || {}
-
-    let sortProxies = proxies
-      .filter((p) => p.changeUrl || (proxiesData[p.url()] || 0) < this.limitProxyCount)
-      .sort((a, b) => {
-        const aVal = proxiesData[a.url()] || 0
-        const bVal = proxiesData[b.url()] || 0
-
-        return aVal - bVal
-      })
-
-    if (prior) {
-      const dynamicProxies = sortProxies.filter((p) => p.changeUrl)
-      if (dynamicProxies.length) {
-        sortProxies = dynamicProxies
-      }
-    }
-
-    const selectedProxy = sortProxies[0]
-    if (selectedProxy) {
-      if (selectedProxy.changeUrl) {
-        const usedCount = proxiesData[selectedProxy.url()] || 0
-        if (usedCount >= this.limitProxyCount) {
-          await this.changeProxyIp(selectedProxy.changeUrl)
-          await this.proxyDb.add({ [selectedProxy.url()]: 0 })
-        }
-      }
-
-      this.incProxy(selectedProxy.url())
-      return selectedProxy
-    }
-
-    return
-  }
-  async incProxy(proxyUrl?: string, inc = 1) {
-    if (!proxyUrl) {
-      return
-    }
-    const { result = 0 } = await this.proxyDb.get(proxyUrl)
-    await this.proxyDb.add({ [proxyUrl]: result + inc })
   }
 
   private async getBrowserSuggestions(text: string, proxy?: ProxyItem) {
@@ -215,7 +167,6 @@ export class WtnSvc {
   private async getFetchSuggestions(text: string, proxy?: ProxyItem) {
     try {
       const fh = await getFetchHap()
-
       const resp = await fh('https://api.wordtune.com/rewrite-limited', {
         headers: {
           'cache-control': 'no-cache',
@@ -272,27 +223,6 @@ export class WtnSvc {
       const result = (await resp.json()) as any
 
       return { result }
-    } catch (error: any) {
-      return { error }
-    }
-  }
-
-  async changeProxyIp(url: string) {
-    try {
-      if (!url.startsWith('http')) {
-        url = `http://${url}`
-      }
-      const fh = await getFetchHap()
-      const resp = await fh(url, {
-        headers: {
-          'cache-control': 'no-cache',
-          'content-type': 'application/json'
-        },
-        method: 'GET',
-        timeout: 60e3
-      })
-
-      return { result: await resp.json() }
     } catch (error: any) {
       return { error }
     }

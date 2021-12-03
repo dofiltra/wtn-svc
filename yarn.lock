@@ -319,13 +319,14 @@ dotenv@^10.0.0:
   resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-10.0.0.tgz#3d4227b8fb95f81096cdd2b66653fb2c7085ba81"
   integrity sha512-rlBi9d8jpv9Sf1klPjNfFAuWDjKLwTIJJ/VxtoTwIR6hnZxcEOQCZg2oIL3MWBYw5GpUDKOEnND7LXTbIpQ03Q==
 
-dprx-types@^1.0.37:
-  version "1.0.37"
-  resolved "https://registry.yarnpkg.com/dprx-types/-/dprx-types-1.0.37.tgz#94d1532d0976ae1d72e52c48e3adf7bf4045437b"
-  integrity sha512-4QE2cj6zNxSNNyh1OHo7LqBt13+iBedibEQbcxjPBz7vZo2Orfo1zjD6GwKaXAbnSF5tE4JODqzbyTUDOTbADQ==
+dprx-types@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/dprx-types/-/dprx-types-1.1.0.tgz#818e6b18a9f33d912562e0649eceb48c37b32f6a"
+  integrity sha512-1tHtwRFcPSl5SpSZn9R9MjiWZGdUzovS0EbeksTw12y++wXIRkTlwMZq8WPH7XQ+yTZxXWd7dnWZihmt7wsmWA==
   dependencies:
     dotenv "^10.0.0"
     esm-requirer "^1.0.3"
+    make-fetch-happen "^9.1.0"
     time-helpers "^1.0.0"
 
 encoding@^0.1.12:
