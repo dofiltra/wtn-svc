@@ -64,8 +64,9 @@ export class WtnSvc {
       }
 
       if (!suggestions?.length) {
+        const sortBy: ('changeUrl' | 'useCount')[] = ['changeUrl', 'useCount']
         proxy ||= await Proxifible.getProxy({
-          sortBy: ['changeUrl', 'useCount']
+          sortBy: Math.random() > 0.3 ? sortBy : sortBy.reverse()
         })
 
         const { result: fetchFreeResult, error: fetchError } = await this.getFetchSuggestions(text, proxy)
@@ -164,9 +165,9 @@ export class WtnSvc {
       const resp = await fh('https://api.wordtune.com/rewrite-limited', {
         headers: {
           'cache-control': 'no-cache',
-          'content-type': 'application/json'
+          'content-type': 'application/json',
+          'x-wordtune-origin': 'https://www.wordtune.com'
           // "userid": "deviceId-mQEG34Al9yPCMsSUnVK9s3",
-          // "x-wordtune-origin": "https://www.wordtune.com"
         },
         body: JSON.stringify({
           action: 'REWRITE',
