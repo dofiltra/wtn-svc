@@ -71,7 +71,7 @@ export class WtnSvc {
 
         const { result: fetchFreeResult, error: fetchError } = await this.getFetchSuggestions(text, proxy)
         if (fetchFreeResult?.detail && !fetchFreeResult?.suggestions?.length) {
-          await Proxifible.incProxy(proxy?.url(), Number.MAX_SAFE_INTEGER)
+          await Proxifible.changeUseCountProxy(proxy?.url(), Number.MAX_SAFE_INTEGER)
         }
         suggestions = fetchFreeResult?.suggestions
 
