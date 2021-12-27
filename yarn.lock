@@ -309,10 +309,10 @@ dotenv@^10.0.0:
   resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-10.0.0.tgz#3d4227b8fb95f81096cdd2b66653fb2c7085ba81"
   integrity sha512-rlBi9d8jpv9Sf1klPjNfFAuWDjKLwTIJJ/VxtoTwIR6hnZxcEOQCZg2oIL3MWBYw5GpUDKOEnND7LXTbIpQ03Q==
 
-dprx-types@^1.1.10, dprx-types@^1.1.13:
-  version "1.1.13"
-  resolved "https://registry.yarnpkg.com/dprx-types/-/dprx-types-1.1.13.tgz#0b49a34e04709c4ccf904423a42e3784eb128402"
-  integrity sha512-v0EkRH6lMbACR9+zVuTEt1o/aVEzql2KNAgGqlF32hkv1GPBDEFYZ9Yda8laGKyc5lyJUIMTtldM8ycL7KHPQQ==
+dprx-types@^1.1.10, dprx-types@^1.1.14:
+  version "1.1.14"
+  resolved "https://registry.yarnpkg.com/dprx-types/-/dprx-types-1.1.14.tgz#05529f1c2414696931a5c0618791bf96f7f2e430"
+  integrity sha512-ixnAIoXOT/PykQPCRqaaj75tFlo8zrjjCdPPfXlfZSWAJ1MTgqpkiPUFNz6XwvHdNitYJx6PkDIEzNsMek8Dfg==
   dependencies:
     dofiltra_api "^1.1.38"
     dotenv "^10.0.0"

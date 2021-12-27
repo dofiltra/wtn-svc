@@ -2,7 +2,7 @@ import _ from 'lodash'
 import { BrowserManager, LaunchOptions } from 'browser-manager'
 import { LowDbKv } from 'dbtempo'
 import { TBrowserOpts } from 'browser-manager/lib/types'
-import { getFetchHap, Proxifible, ProxyItem } from 'dprx-types'
+import { getFetchHap, Proxifible, ProxyItem, RewriteMode } from 'dprx-types'
 
 export type TWtnSettings = {
   token?: string
@@ -29,7 +29,7 @@ export class WtnSvc {
     this.settings = { ...s }
   }
 
-  async getSuggestions(text: string) {
+  async getSuggestions(text: string, mode: RewriteMode = RewriteMode.Longer) {
     const { token, dbCacheName = `suggestions-{YYYY}-{MM}-{DD}.json`, allowUseBrowser = false } = this.settings
 
     if (!text?.length || text.length > WTN_MAX_LENGTH) {
@@ -52,7 +52,7 @@ export class WtnSvc {
       let proxy: ProxyItem | undefined
 
       if (token && !WtnSvc.pauseTokens[token]) {
-        const { result: apiResult, error: apiError } = await this.getApiSuggestions(text, token)
+        const { result: apiResult, error: apiError } = await this.getApiSuggestions(text, token, mode)
         suggestions = apiResult?.suggestions
         if (apiError) {
           errors.apiError = apiError
@@ -188,7 +188,7 @@ export class WtnSvc {
     }
   }
 
-  private async getApiSuggestions(text: string, token: string, proxy?: { url: string } | null) {
+  private async getApiSuggestions(text: string, token: string, mode: RewriteMode, proxy?: { url: string } | null) {
     try {
       const fh = await getFetchHap()
       const resp = await fh('https://api.wordtune.com/rewrite', {
@@ -201,7 +201,7 @@ export class WtnSvc {
         },
         body: JSON.stringify({
           text: `${text}`,
-          action: 'REWRITE',
+          action: mode,
           start: 0,
           end: 290,
           selection: { wholeText: `${text}`, bulletText: '', start: 0, end: 290 },
