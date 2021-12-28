@@ -58,7 +58,7 @@ export class WtnSvc {
           sortBy: Math.random() > 0.3 ? sortBy : sortBy.reverse()
         })
 
-        const { result: fetchFreeResult, error: fetchError } = await this.getFetchSuggestions(text, proxy)
+        const { result: fetchFreeResult, error: fetchError } = await this.getFetchSuggestions(text, mode, proxy)
         if (fetchFreeResult?.detail && !fetchFreeResult?.suggestions?.length) {
           await Proxifible.changeUseCountProxy(proxy?.url(), Number.MAX_SAFE_INTEGER)
         }
@@ -142,7 +142,7 @@ export class WtnSvc {
     }
   }
 
-  private async getFetchSuggestions(text: string, proxy?: ProxyItem) {
+  private async getFetchSuggestions(text: string, mode: RewriteMode, proxy?: ProxyItem) {
     try {
       const fh = await getFetchHap()
       const resp = await fh(`${this.apiUrl}/rewrite-limited`, {
@@ -153,7 +153,7 @@ export class WtnSvc {
           // "userid": "deviceId-mQEG34Al9yPCMsSUnVK9s3",
         },
         body: JSON.stringify({
-          action: 'REWRITE',
+          action: mode,
           text: `${text}`,
           start: 0,
           end: 290,
@@ -171,16 +171,15 @@ export class WtnSvc {
     }
   }
 
-  private async getApiSuggestions(text: string, token: string, mode: RewriteMode, proxy?: { url: string } | null) {
+  private async getApiSuggestions(text: string, token: string, mode: RewriteMode, proxy?: ProxyItem) {
     try {
       const fh = await getFetchHap()
       const resp = await fh(`${this.apiUrl}/rewrite`, {
         headers: {
           'cache-control': 'no-cache',
           'content-type': 'application/json',
+          'x-wordtune-origin': `${this.svcUrl}`,
           token
-          // "userid": "deviceId-mQEG34Al9yPCMsSUnVK9s3",
-          // "x-wordtune-origin": "https://www.wordtune.com"
         },
         body: JSON.stringify({
           text: `${text}`,
@@ -192,11 +191,11 @@ export class WtnSvc {
           emailAccount: null,
           emailMetadata: {},
           lookaheadIndex: 0,
-          isBatch: true
+          isBatch: false
         }),
         method: 'POST',
         timeout: 60e3,
-        proxy: proxy?.url
+        proxy: proxy?.url()
       })
       const result = (await resp.json()) as any
 
