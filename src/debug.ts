@@ -29,8 +29,6 @@ const debug = async () => {
 
   const wtn = new WtnSvc({
     // token: process.env.WTNTOKEN,
-    dbCacheName: 'test_' + Math.random(),
-    // proxies,
     browserOpts: {
       launchOpts: {
         headless: false
@@ -44,7 +42,7 @@ const debug = async () => {
   })
   console.log(proxy)
 
-  // console.log(await wtn.getSuggestions(text))
+  console.log(await wtn.getSuggestions(text))
 }
 
 debug()

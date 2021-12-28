@@ -44,10 +44,8 @@
   ],
   "dependencies": {
     "browser-manager": "^1.1.18",
-    "dbtempo": "^1.0.6",
     "dotenv": "^10.0.0",
     "dprx-types": "^1.1.14",
-    "is-running-process": "^1.0.0",
     "lodash": "^4.17.21",
     "time-helpers": "^1.0.0"
   }

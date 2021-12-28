@@ -1,13 +1,10 @@
 import _ from 'lodash'
 import { BrowserManager, LaunchOptions } from 'browser-manager'
-import { LowDbKv } from 'dbtempo'
 import { TBrowserOpts } from 'browser-manager/lib/types'
 import { getFetchHap, Proxifible, ProxyItem, RewriteMode } from 'dprx-types'
 
 export type TWtnSettings = {
   token?: string
-  dbCacheName?: string
-  // proxies?: ProxyItem[]
   browserOpts?: TBrowserOpts
   allowUseBrowser?: boolean
 }
@@ -22,7 +19,8 @@ export class WtnSvc {
   private static pauseTokens: { [token: string]: string } = {}
 
   protected settings: TWtnSettings
-  protected svcUrl = 'https://www.wordtune.com/'
+  protected svcUrl = 'https://www.wordtune.com'
+  protected apiUrl = 'https://api.wordtune.com'
   protected limitProxyCount = 100
 
   constructor(s?: TWtnSettings) {
@@ -30,19 +28,10 @@ export class WtnSvc {
   }
 
   async getSuggestions(text: string, mode: RewriteMode = RewriteMode.Longer) {
-    const { token, dbCacheName = `suggestions-{YYYY}-{MM}-{DD}.json`, allowUseBrowser = false } = this.settings
+    const { token, allowUseBrowser = false } = this.settings
 
     if (!text?.length || text.length > WTN_MAX_LENGTH) {
       return { result: [text] }
-    }
-
-    const db = new LowDbKv({
-      dbName: dbCacheName
-    })
-
-    const existItem = await db.find('text', text)
-    if (existItem?.result?.suggestions?.length > 1) {
-      return { result: existItem.result.suggestions }
     }
 
     const errors: any = {}
@@ -99,12 +88,6 @@ export class WtnSvc {
         }
       }
 
-      await db.add({
-        [`${Date.now()}_${_.random(1e5, 1e6)}`]: {
-          text,
-          suggestions
-        }
-      })
       return { result: suggestions, errors }
     } catch (error: any) {
       return {
@@ -162,11 +145,11 @@ export class WtnSvc {
   private async getFetchSuggestions(text: string, proxy?: ProxyItem) {
     try {
       const fh = await getFetchHap()
-      const resp = await fh('https://api.wordtune.com/rewrite-limited', {
+      const resp = await fh(`${this.apiUrl}/rewrite-limited`, {
         headers: {
           'cache-control': 'no-cache',
           'content-type': 'application/json',
-          'x-wordtune-origin': 'https://www.wordtune.com'
+          'x-wordtune-origin': `${this.svcUrl}`
           // "userid": "deviceId-mQEG34Al9yPCMsSUnVK9s3",
         },
         body: JSON.stringify({
@@ -191,7 +174,7 @@ export class WtnSvc {
   private async getApiSuggestions(text: string, token: string, mode: RewriteMode, proxy?: { url: string } | null) {
     try {
       const fh = await getFetchHap()
-      const resp = await fh('https://api.wordtune.com/rewrite', {
+      const resp = await fh(`${this.apiUrl}/rewrite`, {
         headers: {
           'cache-control': 'no-cache',
           'content-type': 'application/json',
