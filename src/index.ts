@@ -38,12 +38,10 @@ export class WtnSvc {
     const queue = this.queue
     queue.concurrency = s.instanceOpts?.reduce((sum, instOpts) => sum + instOpts.maxInstance, 0) || 1
     queue.on('active', () => {
-      // console.log(
-      //   `QStarted! S/P: ${queue.size}/ ${queue.pending} | Date: ${new Date().toJSON()}`
-      // )
+      // console.log(`QStarted! S/P: ${queue.size}/ ${queue.pending} | Date: ${new Date().toJSON()}`)
     })
     queue.on('completed', (result) => {
-      //   console.log(`QCompleted | Date: ${new Date().toJSON()}`)
+      // console.log(`QCompleted | Date: ${new Date().toJSON()}`)
     })
     queue.on('error', (error) => console.log('\n---\nQRewriter error', error))
     queue.on('idle', async () => {
@@ -164,13 +162,19 @@ export class WtnSvc {
         url: this.svcUrl,
         waitUntil: 'networkidle',
         blackList: {
-          resourceTypes: ['stylesheet', 'image']
+          resourceTypes: ['stylesheet', 'image', 'media']
         }
       })) as Page
 
       if (!browser || !page) {
         continue
       }
+
+      page.on('request', async (req) => {
+        if (req.method().toUpperCase() === 'POST') {
+          console.log(req.url())
+        }
+      })
 
       page.on('response', async (response) => {
         if (response.status() !== 429) {
@@ -204,35 +208,9 @@ export class WtnSvc {
     try {
       let suggestions = []
 
-      // if (this.token && !WtnSvc.pauseTokens[this.token]) {
-      //   const { result: apiResult, error: apiError } = await this.getApiSuggestions(text, token, mode, proxy)
-      //   suggestions = apiResult?.suggestions
-      //   if (apiError) {
-      //     errors.apiError = apiError
-      //   }
-
-      //   if (apiResult?.detail && !apiResult?.suggestions?.length) {
-      //     WtnSvc.pauseTokens[token] = apiResult.detail
-      //   }
-      // }
-
-      // if (!suggestions?.length) {
-      //   const { result: fetchFreeResult, error: fetchError } = await this.getFetchSuggestions(text, mode, proxy)
-      //   if (fetchFreeResult?.detail && !fetchFreeResult?.suggestions?.length) {
-      //     await Proxifible.changeUseCountProxy(proxy?.url(), Number.MAX_SAFE_INTEGER)
-      //   }
-      //   suggestions = fetchFreeResult?.suggestions
-
-      //   if (fetchError) {
-      //     errors.fetchError = fetchError
-      //   }
-      // }
-
-      if (!suggestions?.length) {
-        const { suggestions: browserSuggestions = [] } = await this.getBrowserSuggestions({ text, mode })
-        if (browserSuggestions.length) {
-          suggestions = browserSuggestions
-        }
+      const { suggestions: browserSuggestions = [] } = await this.getBrowserSuggestions({ text, mode })
+      if (browserSuggestions?.length) {
+        suggestions = browserSuggestions
       }
 
       if (!suggestions?.length) {
@@ -271,19 +249,27 @@ export class WtnSvc {
         return resolve(null)
       }
 
-      try {
-        await page.type('#widget-textarea', text)
-        await page.evaluate((e) => {
-          window.document.getElementById('widget-rewrite-button')?.click()
-        })
-        // await page.click('button#widget-rewrite-button' })
-        const respResult = await inst.browser?.getRespResult<TRewriteResult>(page, 'rewrite-limited', text)
-
-        return resolve(respResult as TRewriteResult)
-      } catch (error: any) {
-        // console.log(error)
-        return resolve(null)
+      // by token
+      if (WtnSvc.token && !WtnSvc.pauseTokens[WtnSvc.token]) {
+        const apiResult: TRewriteResult | null = await this.getApiResult(page, opts)
+        if (apiResult?.suggestions?.length) {
+          return resolve(apiResult)
+        }
       }
+
+      // by demo
+      const demoResult: TRewriteResult | null = await this.getDemoResult(page, opts)
+      if (demoResult?.suggestions?.length) {
+        return resolve(demoResult)
+      }
+
+      // by click
+      const clickResult = await this.getClickResult(inst, opts)
+      if (clickResult?.suggestions?.length) {
+        return resolve(clickResult)
+      }
+
+      return resolve(null)
     })
 
     WtnSvc.updateInstance(inst.id, {
@@ -301,67 +287,119 @@ export class WtnSvc {
     return result
   }
 
-  // private async getFetchSuggestions(text: string, mode: RewriteMode, proxy?: ProxyItem) {
-  //   try {
-  //     const fh = await getFetchHap()
-  //     const resp = await fh(`${this.apiUrl}/rewrite-limited`, {
-  //       headers: {
-  //         'cache-control': 'no-cache',
-  //         'content-type': 'application/json',
-  //         'x-wordtune-origin': `${this.svcUrl}`
-  //         // "userid": "deviceId-mQEG34Al9yPCMsSUnVK9s3",
-  //       },
-  //       body: JSON.stringify({
-  //         action: mode,
-  //         text: `${text}`,
-  //         start: 0,
-  //         end: 290,
-  //         selection: { wholeText: `${text}`, start: 0, end: 290 }
-  //       }),
-  //       method: 'POST',
-  //       timeout: 60e3,
-  //       proxy: proxy?.url()
-  //     })
-  //     const result = (await resp.json()) as any
+  private async getApiResult(page: Page, opts: TSuggestionsOpts) {
+    if (!WtnSvc.token) {
+      return null
+    }
 
-  //     return { result }
-  //   } catch (error: any) {
-  //     return { error }
-  //   }
-  // }
+    try {
+      return await page.evaluate(
+        async ({ token, apiUrl, text, mode }) => {
+          const resp = await fetch(`${apiUrl}/rewrite`, {
+            headers: {
+              'cache-control': 'no-cache',
+              'content-type': 'application/json',
+              'x-wordtune-origin': `${apiUrl}`,
+              'x-wordtune': '1',
+              'x-wordtune-version': '0.0.1',
+              token
+            } as any,
+            body: JSON.stringify({
+              text,
+              action: mode,
+              start: 0,
+              end: text.length,
+              selection: { wholeText: `${text}`, bulletText: '', start: 0, end: text.length },
+              draftId: 'DIV_editorContentEditable_jss24 jss25-1638001581177',
+              emailAccount: null,
+              emailMetadata: {},
+              lookaheadIndex: 0,
+              isBatch: false
+            }),
+            method: 'POST'
+          })
+          console.log(resp.ok)
 
-  // private async getApiSuggestions(text: string, token: string, mode: RewriteMode, proxy?: ProxyItem) {
-  //   try {
-  //     const fh = await getFetchHap()
+          if (resp.ok) {
+            return (await resp.json()) as any
+          }
+          return null
+        },
+        {
+          token: WtnSvc.token,
+          apiUrl: WtnSvc.apiUrl,
+          text: opts.text,
+          mode: opts.mode
+        }
+      )
+    } catch (error: any) {
+      WtnSvc.pauseTokens[WtnSvc.token] = error
+      console.log(error)
+    }
 
-  //     const resp = await fh(`${this.apiUrl}/rewrite`, {
-  //       headers: {
-  //         'cache-control': 'no-cache',
-  //         'content-type': 'application/json',
-  //         // 'x-wordtune-origin': `${this.svcUrl}`,
-  //         token
-  //       },
-  //       body: JSON.stringify({
-  //         text,
-  //         action: mode,
-  //         start: 0,
-  //         end: text.length,
-  //         selection: { wholeText: `${text}`, bulletText: '', start: 0, end: text.length },
-  //         draftId: 'DIV_editorContentEditable_jss24 jss25-1638001581177',
-  //         emailAccount: null,
-  //         emailMetadata: {},
-  //         lookaheadIndex: 0,
-  //         isBatch: false
-  //       }),
-  //       method: 'POST',
-  //       timeout: 60e3,
-  //       proxy: proxy?.url()
-  //     })
-  //     const result = (await resp.json()) as any
+    return null
+  }
 
-  //     return { result }
-  //   } catch (error: any) {
-  //     return { error }
-  //   }
-  // }
+  private async getDemoResult(page: Page, opts: TSuggestionsOpts) {
+    try {
+      return await page.evaluate(
+        async ({ apiUrl, text, mode }) => {
+          const resp = await fetch(`${apiUrl}/rewrite-limited`, {
+            headers: {
+              'cache-control': 'no-cache',
+              'content-type': 'application/json',
+              'x-wordtune-origin': `${apiUrl}`,
+              'x-wordtune': '1',
+              'x-wordtune-version': '0.0.1'
+            } as any,
+            body: JSON.stringify({
+              text,
+              action: mode,
+              start: 0,
+              end: text.length,
+              selection: { wholeText: `${text}`, bulletText: '', start: 0, end: text.length },
+              draftId: 'DIV_editorContentEditable_jss24 jss25-1638001581177',
+              emailAccount: null,
+              emailMetadata: {},
+              lookaheadIndex: 0,
+              isBatch: false
+            }),
+            method: 'POST'
+          })
+          console.log(resp.ok)
+
+          if (resp.ok) {
+            return (await resp.json()) as any
+          }
+          return null
+        },
+        {
+          apiUrl: WtnSvc.apiUrl,
+          text: opts.text,
+          mode: opts.mode
+        }
+      )
+    } catch (error: any) {
+      console.log(error)
+    }
+
+    return null
+  }
+
+  private async getClickResult(inst: TBrowserInstance, opts: TSuggestionsOpts) {
+    try {
+      const page = inst.page
+      await page.type('#widget-textarea', opts.text)
+      await page.evaluate((e) => {
+        window.document.getElementById('widget-rewrite-button')?.click()
+      })
+      // await page.click('button#widget-rewrite-button' })
+      const respResult = await inst.browser?.getRespResult<TRewriteResult>(page, 'rewrite-limited', opts.text)
+
+      return respResult as TRewriteResult
+    } catch (error: any) {
+      // console.log(error)
+      return null
+    }
+  }
 }
