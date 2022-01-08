@@ -148,7 +148,7 @@ export class WtnSvc {
 
     await Promise.all(
       new Array(...new Array(newInstancesCount)).map(async () => {
-        console.log(`Creating instance...`)
+        console.log(`Dorewrita: Creating instance...`)
 
         const id = crypto.randomBytes(16).toString('hex')
         const sortBy: ('changeUrl' | 'useCount')[] = ['changeUrl', 'useCount']
@@ -196,7 +196,7 @@ export class WtnSvc {
           await this.closeInstance(id)
         })
 
-        console.log(`Created instance #${this.instances.length + 1} of ${opts.maxInstance}`)
+        console.log(`Dorewrita: Created instance #${this.instances.length + 1} of ${opts.maxInstance}`)
 
         this.instances.push({
           id,
