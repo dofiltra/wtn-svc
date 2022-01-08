@@ -9,6 +9,7 @@ import { Proxifible } from 'dprx-types'
 import { TBrowserInstance, TInstanceOpts, TSuggestionsOpts, TRewriteResult, TWtnSettings } from './types'
 import { sleep } from 'time-helpers'
 
+export * from './types'
 export const WTN_MAX_LENGTH = 280
 
 export class WtnSvc {
