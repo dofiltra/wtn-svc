@@ -1,3 +1,6 @@
+/* tslint:disable:no-console */
+/* tslint:disable:no-unused-expression */
+
 import _ from 'lodash'
 import PQueue from 'p-queue'
 import crypto from 'crypto'

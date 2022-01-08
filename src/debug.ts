@@ -1,4 +1,5 @@
 /* tslint:disable:no-console */
+/* tslint:disable:no-debugger */
 
 import { WtnSvc } from '.'
 import dotenv from 'dotenv'
