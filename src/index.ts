@@ -146,64 +146,70 @@ export class WtnSvc {
     const { headless, maxPerUse = 100, liveMinutes = 10 } = opts
     const instanceLiveSec = liveMinutes * 60
 
-    for (let i = 0; i < newInstancesCount; i++) {
-      const id = crypto.randomBytes(16).toString('hex')
-      const sortBy: ('changeUrl' | 'useCount')[] = ['changeUrl', 'useCount']
-      const proxyItem = await Proxifible.getProxy({
-        filterTypes: ['http', 'https'],
-        filterVersions: [4],
-        sortBy: Math.random() > 0.3 ? sortBy : sortBy.reverse(),
-        sortOrder: ['asc', 'asc']
-      })
+    await Promise.all(
+      new Array(...new Array(newInstancesCount)).map(async () => {
+        console.log(`Creating instance...`)
 
-      const browser = await BrowserManager.build<BrowserManager>({
-        maxOpenedBrowsers: Number.MAX_SAFE_INTEGER,
-        launchOpts: {
-          headless: headless !== false,
-          proxy: proxyItem?.toPwrt()
-        },
-        device: devices['Pixel 5'],
-        lockCloseFirst: instanceLiveSec,
-        idleCloseSeconds: instanceLiveSec
-      })
-      const page = (await browser!.newPage({
-        url: this.svcUrl,
-        waitUntil: 'networkidle',
-        blackList: {
-          resourceTypes: ['stylesheet', 'image', 'media']
-        }
-      })) as Page
+        const id = crypto.randomBytes(16).toString('hex')
+        const sortBy: ('changeUrl' | 'useCount')[] = ['changeUrl', 'useCount']
+        const proxyItem = await Proxifible.getProxy({
+          filterTypes: ['http', 'https'],
+          filterVersions: [4],
+          sortBy: Math.random() > 0.5 ? sortBy : sortBy.reverse(),
+          sortOrder: ['asc', 'asc']
+        })
 
-      if (!browser || !page) {
-        continue
-      }
+        const browser = await BrowserManager.build<BrowserManager>({
+          maxOpenedBrowsers: Number.MAX_SAFE_INTEGER,
+          launchOpts: {
+            headless: headless !== false,
+            proxy: proxyItem?.toPwrt()
+          },
+          device: devices['Pixel 5'],
+          lockCloseFirst: instanceLiveSec,
+          idleCloseSeconds: instanceLiveSec
+        })
+        const page = (await browser!.newPage({
+          url: this.svcUrl,
+          waitUntil: 'networkidle',
+          blackList: {
+            resourceTypes: ['stylesheet', 'image', 'media']
+          }
+        })) as Page
 
-      // page.on('request', async (req) => {
-      //   if (req.method().toUpperCase() === 'POST') {
-      //     console.log(req.url())
-      //   }
-      // })
-
-      page.on('response', async (response) => {
-        if (response.status() !== 429) {
+        if (!browser || !page) {
           return
         }
-        // debugger
-        await Proxifible.changeUseCountProxy(proxyItem?.url(), Proxifible.limitPerProxy)
-        await this.closeInstance(id)
-      })
 
-      this.instances.push({
-        id,
-        type: 'WTN',
-        idle: true,
-        usedCount: 0,
-        maxPerUse,
-        browser,
-        page,
-        proxyItem
-      } as TBrowserInstance)
-    }
+        // page.on('request', async (req) => {
+        //   if (req.method().toUpperCase() === 'POST') {
+        //     console.log(req.url())
+        //   }
+        // })
+
+        page.on('response', async (response) => {
+          if (response.status() !== 429) {
+            return
+          }
+          // debugger
+          await Proxifible.changeUseCountProxy(proxyItem?.url(), Proxifible.limitPerProxy)
+          await this.closeInstance(id)
+        })
+
+        console.log(`Created instance #${this.instances.length + 1} of ${opts.maxInstance}`)
+
+        this.instances.push({
+          id,
+          type: 'WTN',
+          idle: true,
+          usedCount: 0,
+          maxPerUse,
+          browser,
+          page,
+          proxyItem
+        } as TBrowserInstance)
+      })
+    )
   }
 
   async getSuggestions(opts: TSuggestionsOpts): Promise<TRewriteResult> {

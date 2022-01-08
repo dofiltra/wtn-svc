@@ -15,7 +15,7 @@ const debug = async () => {
     // token: process.env.WTNTOKEN,
     instanceOpts: [
       {
-        maxInstance: 10,
+        maxInstance: 5,
         maxPerUse: 100,
         type: 'WTN',
         headless: false,
