@@ -6,7 +6,6 @@ import { getFetchHap, Proxifible, ProxyItem, RewriteMode } from 'dprx-types'
 export type TWtnSettings = {
   token?: string
   browserOpts?: TBrowserOpts
-  allowUseBrowser?: boolean
 }
 
 export type TProxyOpts = {
@@ -17,18 +16,23 @@ export const WTN_MAX_LENGTH = 280
 
 export class WtnSvc {
   private static pauseTokens: { [token: string]: string } = {}
+  private static browsers: any = []
 
   protected settings: TWtnSettings
   protected svcUrl = 'https://www.wordtune.com'
   protected apiUrl = 'https://api.wordtune.com'
   protected limitProxyCount = 100
 
+  static async build(s?: TWtnSettings) {
+    return new WtnSvc(s)
+  }
+
   constructor(s?: TWtnSettings) {
     this.settings = { ...s }
   }
 
   async getSuggestions(text: string, mode: RewriteMode = RewriteMode.Longer) {
-    const { token, allowUseBrowser = false } = this.settings
+    const { token } = this.settings
 
     if (!text?.length || text.length > WTN_MAX_LENGTH) {
       return { result: [text] }
@@ -40,42 +44,48 @@ export class WtnSvc {
       let suggestions = []
       let proxy: ProxyItem | undefined
 
-      if (token && !WtnSvc.pauseTokens[token]) {
-        const { result: apiResult, error: apiError } = await this.getApiSuggestions(text, token, mode)
-        suggestions = apiResult?.suggestions
-        if (apiError) {
-          errors.apiError = apiError
-        }
+      // if (token && !WtnSvc.pauseTokens[token]) {
+      //   const sortBy: ('changeUrl' | 'useCount')[] = ['changeUrl', 'useCount']
+      //   proxy = await Proxifible.getProxy({
+      //     sortBy: Math.random() > 0.3 ? sortBy : sortBy.reverse()
+      //   })
 
-        if (apiResult?.detail && !apiResult?.suggestions?.length) {
-          WtnSvc.pauseTokens[token] = apiResult.detail
-        }
-      }
+      //   const { result: apiResult, error: apiError } = await this.getApiSuggestions(text, token, mode, proxy)
+      //   suggestions = apiResult?.suggestions
+      //   if (apiError) {
+      //     errors.apiError = apiError
+      //   }
+
+      //   if (apiResult?.detail && !apiResult?.suggestions?.length) {
+      //     WtnSvc.pauseTokens[token] = apiResult.detail
+      //   }
+      // }
+
+      // if (!suggestions?.length) {
+      //   const sortBy: ('changeUrl' | 'useCount')[] = ['changeUrl', 'useCount']
+      //   proxy = await Proxifible.getProxy({
+      //     sortBy: Math.random() > 0.3 ? sortBy : sortBy.reverse()
+      //   })
+
+      //   const { result: fetchFreeResult, error: fetchError } = await this.getFetchSuggestions(text, mode, proxy)
+      //   if (fetchFreeResult?.detail && !fetchFreeResult?.suggestions?.length) {
+      //     await Proxifible.changeUseCountProxy(proxy?.url(), Number.MAX_SAFE_INTEGER)
+      //   }
+      //   suggestions = fetchFreeResult?.suggestions
+
+      //   if (fetchError) {
+      //     errors.fetchError = fetchError
+      //   }
+      // }
 
       if (!suggestions?.length) {
-        const sortBy: ('changeUrl' | 'useCount')[] = ['changeUrl', 'useCount']
-        proxy ||= await Proxifible.getProxy({
-          sortBy: Math.random() > 0.3 ? sortBy : sortBy.reverse()
-        })
-
-        const { result: fetchFreeResult, error: fetchError } = await this.getFetchSuggestions(text, mode, proxy)
-        if (fetchFreeResult?.detail && !fetchFreeResult?.suggestions?.length) {
-          await Proxifible.changeUseCountProxy(proxy?.url(), Number.MAX_SAFE_INTEGER)
-        }
-        suggestions = fetchFreeResult?.suggestions
-
-        if (fetchError) {
-          errors.fetchError = fetchError
-        }
-      }
-
-      if (!suggestions?.length && allowUseBrowser) {
-        proxy ||= await Proxifible.getProxy({
-          filterTypes: ['http', 'https']
+        proxy = await Proxifible.getProxy({
+          filterTypes: ['http', 'https'],
+          filterVersions: [4]
         })
 
         const { result: browserResult, error: browserError } = await this.getBrowserSuggestions(text, proxy)
-        suggestions = browserResult.suggestions
+        suggestions = browserResult?.suggestions
         if (browserError) {
           errors.browserError = browserError
         }
@@ -123,7 +133,10 @@ export class WtnSvc {
 
       const page = await pwrt?.newPage({
         url: this.svcUrl,
-        waitUntil: 'networkidle'
+        waitUntil: 'networkidle',
+        blackList: {
+          resourceTypes: ['image', 'stylesheet']
+        }
       })
 
       if (!page) {
@@ -174,19 +187,20 @@ export class WtnSvc {
   private async getApiSuggestions(text: string, token: string, mode: RewriteMode, proxy?: ProxyItem) {
     try {
       const fh = await getFetchHap()
+
       const resp = await fh(`${this.apiUrl}/rewrite`, {
         headers: {
           'cache-control': 'no-cache',
           'content-type': 'application/json',
-          'x-wordtune-origin': `${this.svcUrl}`,
+          // 'x-wordtune-origin': `${this.svcUrl}`,
           token
         },
         body: JSON.stringify({
-          text: `${text}`,
+          text,
           action: mode,
           start: 0,
-          end: 290,
-          selection: { wholeText: `${text}`, bulletText: '', start: 0, end: 290 },
+          end: text.length,
+          selection: { wholeText: `${text}`, bulletText: '', start: 0, end: text.length },
           draftId: 'DIV_editorContentEditable_jss24 jss25-1638001581177',
           emailAccount: null,
           emailMetadata: {},

@@ -4,7 +4,7 @@ import { WtnSvc } from '.'
 import dotenv from 'dotenv'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import { Proxifible, ProxyItem } from 'dprx-types'
+import { Proxifible, ProxyItem, RewriteMode } from 'dprx-types'
 
 const debug = async () => {
   const rootPath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
@@ -27,8 +27,8 @@ const debug = async () => {
   // ]
   // Proxifible.proxies = proxies
 
-  const wtn = new WtnSvc({
-    // token: process.env.WTNTOKEN,
+  const wtn = await WtnSvc.build({
+    token: process.env.WTNTOKEN,
     browserOpts: {
       launchOpts: {
         headless: false
@@ -37,12 +37,12 @@ const debug = async () => {
   })
 
   // const changeUrlResult = await wtn.changeProxyIp(proxies[0].changeUrl!)
-  const proxy = await Proxifible.getProxy({
-    sortBy: ['changeUrl']
-  })
-  console.log(proxy)
+  // const proxy = await Proxifible.getProxy({
+  //   sortBy: ['changeUrl']
+  // })
+  // console.log(proxy)
 
-  console.log(await wtn.getSuggestions(text))
+  console.log(await wtn.getSuggestions(text, RewriteMode.Rewrite))
 }
 
 debug()
