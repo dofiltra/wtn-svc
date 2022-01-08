@@ -1,6 +1,6 @@
 {
   "name": "wtn-svc",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -45,7 +45,7 @@
   "dependencies": {
     "browser-manager": "^1.1.18",
     "dotenv": "^10.0.0",
-    "dprx-types": "^1.1.18",
+    "dprx-types": "^1.1.19",
     "lodash": "^4.17.21",
     "p-queue": "^7.1.0",
     "time-helpers": "^1.0.0"
