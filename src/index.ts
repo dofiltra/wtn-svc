@@ -69,6 +69,8 @@ export class WtnSvc {
     }
 
     this.creatingInstances = true
+    await Proxifible.loadProxies()
+
     for (const opts of this.instanceOpts) {
       const { type, maxInstance } = opts
       const newInstanceCount = maxInstance - this.instances.filter((inst) => inst?.type === type).length
@@ -119,7 +121,7 @@ export class WtnSvc {
       return inst
     }
 
-    await sleep(_.random(5e3, 10e3))
+    await sleep(_.random(3e3, 7e3))
     await this.closeDeadInstances()
     await this.createInstances()
     return await this.getInstance(type)
