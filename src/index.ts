@@ -91,7 +91,7 @@ export class WtnSvc {
       await Promise.all(
         this.instances.map(async (inst) => {
           try {
-            const isLive = !!(await inst.browser.isLive())
+            const isLive = !!(await inst.browser.isLive()) && !inst.page.isClosed()
             if (isLive && inst.usedCount < inst.maxPerUse) {
               return inst
             }
@@ -146,8 +146,12 @@ export class WtnSvc {
       const proxyItem = await Proxifible.getProxy({
         filterTypes: ['http', 'https'],
         filterVersions: [4],
+        // sortBy
         sortBy: Math.random() > 0.3 ? sortBy : sortBy.reverse()
       })
+
+      proxyItem?.changeUrl && (await Proxifible.changeIp(proxyItem.changeUrl, proxyItem.url()))
+
       const browser = await BrowserManager.build<BrowserManager>({
         maxOpenedBrowsers: maxInstance,
         launchOpts: {
@@ -170,11 +174,11 @@ export class WtnSvc {
         continue
       }
 
-      page.on('request', async (req) => {
-        if (req.method().toUpperCase() === 'POST') {
-          console.log(req.url())
-        }
-      })
+      // page.on('request', async (req) => {
+      //   if (req.method().toUpperCase() === 'POST') {
+      //     console.log(req.url())
+      //   }
+      // })
 
       page.on('response', async (response) => {
         if (response.status() !== 429) {
@@ -198,67 +202,32 @@ export class WtnSvc {
     }
   }
 
-  async getSuggestions(text: string, mode: RewriteMode = RewriteMode.Longer) {
-    if (!text?.length || text.length > WTN_MAX_LENGTH) {
-      return { result: [text] }
-    }
+  async getSuggestions(opts: TSuggestionsOpts): Promise<TRewriteResult> {
+    const { text, tryIndex = 0, tryLimit = 1 } = opts
 
-    const errors: any = {}
-
-    try {
-      let suggestions = []
-
-      const { suggestions: browserSuggestions = [] } = await this.getBrowserSuggestions({ text, mode })
-      if (browserSuggestions?.length) {
-        suggestions = browserSuggestions
-      }
-
-      if (!suggestions?.length) {
-        return {
-          result: [text],
-          errors
-        }
-      }
-
-      return { result: suggestions, errors }
-    } catch (error: any) {
-      return {
-        result: [text],
-        errors: {
-          ...errors,
-          error
-        }
-      }
-    }
-  }
-
-  private async getBrowserSuggestions(opts: TSuggestionsOpts): Promise<TRewriteResult> {
-    const { tryIndex = 0, tryLimit = 5 } = opts
-
-    if (tryIndex >= tryLimit) {
-      return { suggestions: [opts.text] }
+    if (!text?.length || text.length > WTN_MAX_LENGTH || tryIndex >= tryLimit) {
+      return { suggestions: [text] }
     }
 
     const inst = await WtnSvc.getInstance('WTN')
-    const page = inst?.page
     Proxifible.changeUseCountProxy(inst.proxyItem?.url())
 
     const result: TRewriteResult | null = await new Promise(async (resolve) => {
-      if (!page) {
+      if (!inst?.page || inst.page.isClosed()) {
         await sleep((tryIndex + 1) * 1000)
         return resolve(null)
       }
 
       // by token
       if (WtnSvc.token && !WtnSvc.pauseTokens[WtnSvc.token]) {
-        const apiResult: TRewriteResult | null = await this.getApiResult(page, opts)
+        const apiResult: TRewriteResult | null = await this.getApiResult(inst?.page, opts)
         if (apiResult?.suggestions?.length) {
           return resolve(apiResult)
         }
       }
 
       // by demo
-      const demoResult: TRewriteResult | null = await this.getDemoResult(page, opts)
+      const demoResult: TRewriteResult | null = await this.getDemoResult(inst?.page, opts)
       if (demoResult?.suggestions?.length) {
         return resolve(demoResult)
       }
@@ -272,13 +241,17 @@ export class WtnSvc {
       return resolve(null)
     })
 
-    WtnSvc.updateInstance(inst.id, {
-      idle: true,
-      usedCount: inst.usedCount + 1
-    })
+    if (inst.page.isClosed()) {
+      await WtnSvc.closeInstance(inst.id)
+    } else {
+      WtnSvc.updateInstance(inst.id, {
+        idle: true,
+        usedCount: inst.usedCount + 1
+      })
+    }
 
     if (!result?.suggestions?.length) {
-      return await this.getBrowserSuggestions({
+      return await this.getSuggestions({
         ...opts,
         tryIndex: tryIndex + 1
       })

@@ -45,8 +45,11 @@ const debug = async () => {
   //   sortBy: ['changeUrl']
   // })
   // console.log(proxy)
+  for (let i = 0; i < 110; i++) {
+    console.log(i, await wtn.getSuggestions({ text, mode: RewriteMode.Longer }))
+  }
 
-  console.log(await wtn.getSuggestions(text, RewriteMode.Rewrite))
+  debugger
 }
 
 debug()
