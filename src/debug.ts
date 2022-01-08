@@ -28,7 +28,7 @@ const debug = async () => {
   // Proxifible.proxies = proxies
 
   const wtn = await WtnSvc.build({
-    token: process.env.WTNTOKEN,
+    // token: process.env.WTNTOKEN,
     instanceOpts: [
       {
         maxInstance: 1,

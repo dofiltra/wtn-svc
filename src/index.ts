@@ -233,10 +233,10 @@ export class WtnSvc {
   }
 
   private async getBrowserSuggestions(opts: TSuggestionsOpts): Promise<TRewriteResult> {
-    const { text, tryIndex = 0, tryLimit = 5, mode = RewriteMode.Rewrite } = opts
+    const { tryIndex = 0, tryLimit = 5 } = opts
 
     if (tryIndex >= tryLimit) {
-      return { suggestions: [text] }
+      return { suggestions: [opts.text] }
     }
 
     const inst = await WtnSvc.getInstance('WTN')
