@@ -148,7 +148,7 @@ export class WtnSvc {
 
     await Promise.all(
       new Array(...new Array(newInstancesCount)).map(async (x, i) => {
-        await sleep(i * 1000)
+        await sleep(i * 2000)
         console.log(`Dorewrita: Creating instance...`)
 
         const id = crypto.randomBytes(16).toString('hex')
