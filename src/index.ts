@@ -6,7 +6,7 @@ import PQueue from 'p-queue'
 import crypto from 'crypto'
 import { BrowserManager, devices, Page } from 'browser-manager'
 import { Proxifible } from 'dprx-types'
-import { TBrowserInstance, TInstanceOpts, TSuggestionsOpts, TRewriteResult, TWtnSettings } from './types'
+import { TRewriterInstance, TRewriterInstanceOpts, TSuggestionsOpts, TRewriteResult, TRewriterSettings } from './types'
 import { sleep } from 'time-helpers'
 
 export * from './types'
@@ -15,8 +15,8 @@ export const WTN_MAX_LENGTH = 280
 export class WtnSvc {
   protected static creatingInstances = false
   protected static pauseTokens: { [token: string]: string } = {}
-  protected static instances: TBrowserInstance[] = []
-  protected static instanceOpts: TInstanceOpts[] = [
+  protected static instances: TRewriterInstance[] = []
+  protected static instanceOpts: TRewriterInstanceOpts[] = [
     {
       type: 'WTN',
       liveMinutes: 10,
@@ -32,7 +32,7 @@ export class WtnSvc {
   protected static svcUrl = 'https://www.wordtune.com'
   protected static apiUrl = 'https://api.wordtune.com'
 
-  static async build(s: TWtnSettings) {
+  static async build(s: TRewriterSettings) {
     this.token = s.token
     if (s.instanceOpts?.length) {
       this.instanceOpts = s.instanceOpts
@@ -108,10 +108,10 @@ export class WtnSvc {
           return null
         })
       )
-    ).filter((inst) => inst) as TBrowserInstance[]
+    ).filter((inst) => inst) as TRewriterInstance[]
   }
 
-  protected static async getInstance(type: 'WTN'): Promise<TBrowserInstance> {
+  protected static async getInstance(type: 'WTN'): Promise<TRewriterInstance> {
     const inst = this.instances
       .filter((ins) => ins?.type === type)
       .sort((a, b) => a.usedCount - b.usedCount)
@@ -142,7 +142,7 @@ export class WtnSvc {
     delete this.instances[index]
   }
 
-  protected static async createWtnBro(opts: TInstanceOpts, newInstancesCount: number): Promise<void> {
+  protected static async createWtnBro(opts: TRewriterInstanceOpts, newInstancesCount: number): Promise<void> {
     const { headless, maxPerUse = 100, liveMinutes = 10 } = opts
     const instanceLiveSec = liveMinutes * 60
 
@@ -207,7 +207,7 @@ export class WtnSvc {
           browser,
           page,
           proxyItem
-        } as TBrowserInstance)
+        } as TRewriterInstance)
       })
     )
   }
@@ -369,7 +369,7 @@ export class WtnSvc {
     return null
   }
 
-  private async getClickResult(inst: TBrowserInstance, opts: TSuggestionsOpts) {
+  private async getClickResult(inst: TRewriterInstance, opts: TSuggestionsOpts) {
     try {
       const page = inst.page
       await page.type('#widget-textarea', opts.text)

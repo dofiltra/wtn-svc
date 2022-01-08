@@ -1,7 +1,7 @@
 import { BrowserManager, Page } from 'browser-manager'
 import { ProxyItem, RewriteMode } from 'dprx-types'
 
-export type TBrowserInstance = {
+export type TRewriterInstance = {
   id: string
   type: 'WTN'
   browser: BrowserManager
@@ -12,7 +12,7 @@ export type TBrowserInstance = {
   proxyItem?: ProxyItem
 }
 
-export type TInstanceOpts = {
+export type TRewriterInstanceOpts = {
   type: 'WTN'
   maxInstance: number
   maxPerUse: number
@@ -20,9 +20,9 @@ export type TInstanceOpts = {
   headless?: boolean
 }
 
-export type TWtnSettings = {
+export type TRewriterSettings = {
   token?: string
-  instanceOpts?: TInstanceOpts[]
+  instanceOpts?: TRewriterInstanceOpts[]
 }
 
 export type TRewriteResult = {
