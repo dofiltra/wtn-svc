@@ -279,7 +279,7 @@ diff@^4.0.1:
   resolved "https://registry.yarnpkg.com/diff/-/diff-4.0.2.tgz#60f3aecb89d5fae520c11aa19efc2bb982aade7d"
   integrity sha512-58lmxKSA4BNyLz+HHMUzlOEpg09FV+ev6ZMe3vJihgdxzgcwZ8VoEEPmALCZG9LmqfVoNMMKpttIYTVG6uDY7A==
 
-dofiltra_api@^1.1.38:
+dofiltra_api@^1.1.40:
   version "1.1.40"
   resolved "https://registry.yarnpkg.com/dofiltra_api/-/dofiltra_api-1.1.40.tgz#03940e7afa0f9390285d3d265dccf0cac1724311"
   integrity sha512-B30elfKu1UzhidjEH+ON7tD7DSAUcdcMT5gdMsJnqMQ+a8ZEZ5BTW2ZM4F5fSh2a42wlP47plFXwIU37kYZdcA==
@@ -298,12 +298,12 @@ dotenv@^10.0.0:
   resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-10.0.0.tgz#3d4227b8fb95f81096cdd2b66653fb2c7085ba81"
   integrity sha512-rlBi9d8jpv9Sf1klPjNfFAuWDjKLwTIJJ/VxtoTwIR6hnZxcEOQCZg2oIL3MWBYw5GpUDKOEnND7LXTbIpQ03Q==
 
-dprx-types@^1.1.10, dprx-types@^1.1.14:
-  version "1.1.16"
-  resolved "https://registry.yarnpkg.com/dprx-types/-/dprx-types-1.1.16.tgz#c81ba5feb7e6eaab35e3a070003bea8aee79ece5"
-  integrity sha512-+Ttu+75ChSmltkUhOfc6/zvmUhCLMF6U7BcSmMvOwt9FZLtWjwmMBLXtjN3iK7Tj3lr9nul9Co2lZdnN7C3AXg==
+dprx-types@^1.1.10, dprx-types@^1.1.17:
+  version "1.1.17"
+  resolved "https://registry.yarnpkg.com/dprx-types/-/dprx-types-1.1.17.tgz#41a9ea97857b8ebf22c351c236c29aaad9b3ff63"
+  integrity sha512-KjxI+uhGnItPRbMpsIV7m44iPqjQjpT2XkW/bc1JxPg3yfzeaR1vyR5RhsjjYYC3vmMm5UvKq31LNz1Wi04A+Q==
   dependencies:
-    dofiltra_api "^1.1.38"
+    dofiltra_api "^1.1.40"
     dotenv "^10.0.0"
     esm-requirer "^1.0.3"
     make-fetch-happen "^9.1.0"

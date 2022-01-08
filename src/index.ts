@@ -142,7 +142,7 @@ export class WtnSvc {
   }
 
   protected static async createWtnBro(opts: TInstanceOpts, newInstancesCount: number): Promise<void> {
-    const { headless, maxInstance = 1, maxPerUse = 100, liveMinutes = 10 } = opts
+    const { headless, maxPerUse = 100, liveMinutes = 10 } = opts
     const instanceLiveSec = liveMinutes * 60
 
     for (let i = 0; i < newInstancesCount; i++) {
@@ -151,7 +151,6 @@ export class WtnSvc {
       const proxyItem = await Proxifible.getProxy({
         filterTypes: ['http', 'https'],
         filterVersions: [4],
-        // sortBy
         sortBy: Math.random() > 0.3 ? sortBy : sortBy.reverse()
       })
 
