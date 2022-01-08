@@ -39,24 +39,15 @@ export class WtnSvc {
     queue.concurrency = s.instanceOpts?.reduce((sum, instOpts) => sum + instOpts.maxInstance, 0) || 1
     queue.on('active', () => {
       // console.log(
-      //   `Dotransa on item #${++activeCount}.  Size: ${queue.size}  Pending: ${
-      //     queue.pending
-      //   } | Date: ${new Date().toJSON()}`
+      //   `QStarted! S/P: ${queue.size}/ ${queue.pending} | Date: ${new Date().toJSON()}`
       // )
     })
     queue.on('completed', (result) => {
-      // if (result?.targetLang) {
-      //   console.log(
-      //     `#${++completedCount} Dotransa completed | Date: ${new Date().toJSON()}\n`,
-      //     result?.originalText?.slice(0, 30),
-      //     ' --> ',
-      //     result?.translatedText?.slice(0, 30)
-      //   )
-      // }
+      //   console.log(`QCompleted | Date: ${new Date().toJSON()}`)
     })
     queue.on('error', (error) => console.log('\n---\nQRewriter error', error))
     queue.on('idle', async () => {
-      // console.log(`Dotransa queue is idle.  Size: ${queue.size}  Pending: ${queue.pending}`)
+      // console.log(`QIdle.  Size: ${queue.size}  Pending: ${queue.pending}`)
     })
 
     return new this(true)
