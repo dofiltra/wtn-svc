@@ -151,10 +151,9 @@ export class WtnSvc {
       const proxyItem = await Proxifible.getProxy({
         filterTypes: ['http', 'https'],
         filterVersions: [4],
-        sortBy: Math.random() > 0.3 ? sortBy : sortBy.reverse()
+        sortBy: Math.random() > 0.3 ? sortBy : sortBy.reverse(),
+        sortOrder: ['asc', 'asc']
       })
-
-      proxyItem?.changeUrl && (await Proxifible.changeIp(proxyItem.changeUrl, proxyItem.url()))
 
       const browser = await BrowserManager.build<BrowserManager>({
         maxOpenedBrowsers: Number.MAX_SAFE_INTEGER,
