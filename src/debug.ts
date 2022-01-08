@@ -29,11 +29,15 @@ const debug = async () => {
 
   const wtn = await WtnSvc.build({
     token: process.env.WTNTOKEN,
-    browserOpts: {
-      launchOpts: {
-        headless: false
+    instanceOpts: [
+      {
+        maxInstance: 1,
+        maxPerUse: 100,
+        type: 'WTN',
+        headless: false,
+        liveMinutes: 100
       }
-    }
+    ]
   })
 
   // const changeUrlResult = await wtn.changeProxyIp(proxies[0].changeUrl!)

@@ -47,6 +47,7 @@
     "dotenv": "^10.0.0",
     "dprx-types": "^1.1.14",
     "lodash": "^4.17.21",
+    "p-queue": "^7.1.0",
     "time-helpers": "^1.0.0"
   }
 }
