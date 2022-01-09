@@ -159,7 +159,8 @@ export class WtnSvc {
         filterTypes: ['http', 'https'],
         filterVersions: [4],
         sortBy,
-        sortOrder
+        sortOrder,
+        forceChangeIp: true
       },
       newInstancesCount
     )
