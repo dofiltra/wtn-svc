@@ -73,7 +73,6 @@ export class WtnSvc {
     }
 
     this.creatingInstances = true
-    await Proxifible.loadProxies()
 
     for (const opts of this.instanceOpts) {
       const { type, maxInstance } = opts
