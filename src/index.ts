@@ -14,7 +14,7 @@ export const WTN_MAX_LENGTH = 280
 
 export class WtnSvc {
   static instances: TRewriterInstance[] = []
-  
+
   protected static creatingInstances = false
   protected static pauseTokens: { [token: string]: string } = {}
   protected static instanceOpts: TRewriterInstanceOpts[] = [
