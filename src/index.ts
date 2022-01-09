@@ -322,6 +322,7 @@ export class WtnSvc {
       console.log(error)
     }
 
+    WtnSvc.pauseTokens[WtnSvc.token!] = 'Limit 2000 per day'
     return null
   }
 
