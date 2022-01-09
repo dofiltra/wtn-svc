@@ -190,12 +190,12 @@ export class WtnSvc {
         // })
 
         page.on('response', async (response) => {
-          if (response.status() !== 429) {
+          const statusCode = response.status()
+          if (statusCode === 429 || statusCode === 456) {
+            await Proxifible.changeUseCountProxy(proxyItem?.url(), Proxifible.limitPerProxy)
+            await this.closeInstance(id)
             return
           }
-          // debugger
-          await Proxifible.changeUseCountProxy(proxyItem?.url(), Proxifible.limitPerProxy)
-          await this.closeInstance(id)
         })
 
         console.log(`Dorewrita: Created instance #${this.instances.length + 1} of ${opts.maxInstance}`)
