@@ -152,11 +152,11 @@ export class WtnSvc {
         console.log(`Dorewrita: Creating instance...`)
 
         const id = crypto.randomBytes(16).toString('hex')
-        const sortBy: ('changeUrl' | 'useCount')[] = ['useCount']
+        const sortBy: ('changeUrl' | 'useCount')[] = ['changeUrl', 'useCount']
         const proxyItem = await Proxifible.getProxy({
           filterTypes: ['http', 'https'],
           filterVersions: [4],
-          sortBy,
+          sortBy: Math.random() > 0.7 ? sortBy : sortBy.reverse(),
           sortOrder: ['asc']
         })
 
