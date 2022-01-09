@@ -13,9 +13,10 @@ export * from './types'
 export const WTN_MAX_LENGTH = 280
 
 export class WtnSvc {
+  static instances: TRewriterInstance[] = []
+  
   protected static creatingInstances = false
   protected static pauseTokens: { [token: string]: string } = {}
-  protected static instances: TRewriterInstance[] = []
   protected static instanceOpts: TRewriterInstanceOpts[] = [
     {
       type: 'WTN',
@@ -177,7 +178,8 @@ export class WtnSvc {
           }
         })) as Page
 
-        if (!browser || !page) {
+        if (!browser || !page || page.isClosed()) {
+          await Proxifible.changeUseCountProxy(proxyItem?.url(), Proxifible.limitPerProxy)
           return
         }
 
