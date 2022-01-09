@@ -38,6 +38,11 @@ export class WtnSvc {
     if (s.instanceOpts?.length) {
       this.instanceOpts = s.instanceOpts
     }
+
+    if (!Proxifible.proxies.length) {
+      await Proxifible.loadProxies()
+    }
+
     await this.createInstances()
 
     const queue = this.queue
@@ -146,20 +151,30 @@ export class WtnSvc {
     const { headless, maxPerUse = 100, liveMinutes = 10 } = opts
     const instanceLiveSec = liveMinutes * 60
 
+    const isDynamicMode = _.random(true) > 0.75
+    const sortBy: ('changeUrl' | 'useCount')[] = ['changeUrl', 'useCount']
+    const sortOrder: ('asc' | 'desc')[] = [isDynamicMode ? 'asc' : 'desc', 'asc']
+    const proxies = await Proxifible.getProxies(
+      {
+        filterTypes: ['http', 'https'],
+        filterVersions: [4],
+        sortBy,
+        sortOrder
+      },
+      newInstancesCount
+    )
+
     await Promise.all(
       new Array(...new Array(newInstancesCount)).map(async (x, i) => {
         await sleep(i * 2000)
         console.log(`Dorewrita: Creating instance...`)
 
-        const id = crypto.randomBytes(16).toString('hex')
-        const sortBy: ('changeUrl' | 'useCount')[] = ['changeUrl', 'useCount']
-        const proxyItem = await Proxifible.getProxy({
-          filterTypes: ['http', 'https'],
-          filterVersions: [4],
-          sortBy: Math.random() > 0.75 ? sortBy : sortBy.reverse(),
-          sortOrder: ['asc']
-        })
+        const proxyItem = proxies[i]
+        if (!proxyItem) {
+          return
+        }
 
+        const id = crypto.randomBytes(16).toString('hex')
         const browser = await BrowserManager.build<BrowserManager>({
           maxOpenedBrowsers: Number.MAX_SAFE_INTEGER,
           launchOpts: {
