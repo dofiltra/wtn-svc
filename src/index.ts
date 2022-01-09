@@ -156,7 +156,7 @@ export class WtnSvc {
         const proxyItem = await Proxifible.getProxy({
           filterTypes: ['http', 'https'],
           filterVersions: [4],
-          sortBy: Math.random() > 0.7 ? sortBy : sortBy.reverse(),
+          sortBy: Math.random() > 0.75 ? sortBy : sortBy.reverse(),
           sortOrder: ['asc']
         })
 
