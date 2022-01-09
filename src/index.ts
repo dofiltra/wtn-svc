@@ -241,32 +241,37 @@ export class WtnSvc {
     Proxifible.changeUseCountProxy(inst.proxyItem?.url())
 
     const result: TRewriteResult | null = await new Promise(async (resolve) => {
-      if (!inst?.page || inst.page.isClosed()) {
-        await sleep((tryIndex + 1) * 1000)
+      try {
+        if (!inst?.page || inst.page.isClosed()) {
+          await sleep((tryIndex + 1) * 1000)
+          return resolve(null)
+        }
+
+        // by token
+        if (WtnSvc.token && !WtnSvc.pauseTokens[WtnSvc.token]) {
+          const apiResult: TRewriteResult | null = await this.getApiResult(inst?.page, opts)
+          if (apiResult?.suggestions?.length) {
+            return resolve(apiResult)
+          }
+        }
+
+        // by demo
+        const demoResult: TRewriteResult | null = await this.getDemoResult(inst?.page, opts)
+        if (demoResult?.suggestions?.length) {
+          return resolve(demoResult)
+        }
+
+        // by click
+        const clickResult = await this.getClickResult(inst, opts)
+        if (clickResult?.suggestions?.length) {
+          return resolve(clickResult)
+        }
+
+        return resolve(null)
+      } catch (e: any) {
+        console.log(e)
         return resolve(null)
       }
-
-      // by token
-      if (WtnSvc.token && !WtnSvc.pauseTokens[WtnSvc.token]) {
-        const apiResult: TRewriteResult | null = await this.getApiResult(inst?.page, opts)
-        if (apiResult?.suggestions?.length) {
-          return resolve(apiResult)
-        }
-      }
-
-      // by demo
-      const demoResult: TRewriteResult | null = await this.getDemoResult(inst?.page, opts)
-      if (demoResult?.suggestions?.length) {
-        return resolve(demoResult)
-      }
-
-      // by click
-      const clickResult = await this.getClickResult(inst, opts)
-      if (clickResult?.suggestions?.length) {
-        return resolve(clickResult)
-      }
-
-      return resolve(null)
     })
 
     if (inst.page.isClosed()) {
@@ -368,7 +373,6 @@ export class WtnSvc {
             }),
             method: 'POST'
           })
-          console.log(resp.ok)
 
           if (resp.ok) {
             return (await resp.json()) as any
@@ -400,7 +404,7 @@ export class WtnSvc {
 
       return respResult as TRewriteResult
     } catch (error: any) {
-      // console.log(error)
+      console.log(error)
       return null
     }
   }
