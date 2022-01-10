@@ -302,33 +302,36 @@ export class WtnSvc {
     try {
       return await page.evaluate(
         async ({ token, apiUrl, text, mode }) => {
-          const resp = await fetch(`${apiUrl}/rewrite`, {
-            headers: {
-              'cache-control': 'no-cache',
-              'content-type': 'application/json',
-              'x-wordtune-origin': `${apiUrl}`,
-              'x-wordtune': '1',
-              'x-wordtune-version': '0.0.1',
-              token
-            } as any,
-            body: JSON.stringify({
-              text,
-              action: mode,
-              start: 0,
-              end: text.length,
-              selection: { wholeText: `${text}`, bulletText: '', start: 0, end: text.length },
-              draftId: 'DIV_editorContentEditable_jss24 jss25-1638001581177',
-              emailAccount: null,
-              emailMetadata: {},
-              lookaheadIndex: 0,
-              isBatch: false
-            }),
-            method: 'POST'
-          })
-          console.log(resp.ok)
+          try {
+            const resp = await fetch(`${apiUrl}/rewrite`, {
+              headers: {
+                'cache-control': 'no-cache',
+                'content-type': 'application/json',
+                'x-wordtune-origin': `${apiUrl}`,
+                'x-wordtune': '1',
+                'x-wordtune-version': '0.0.1',
+                token
+              } as any,
+              body: JSON.stringify({
+                text,
+                action: mode,
+                start: 0,
+                end: text.length,
+                selection: { wholeText: `${text}`, bulletText: '', start: 0, end: text.length },
+                draftId: 'DIV_editorContentEditable_jss24 jss25-1638001581177',
+                emailAccount: null,
+                emailMetadata: {},
+                lookaheadIndex: 0,
+                isBatch: false
+              }),
+              method: 'POST'
+            })
 
-          if (resp.ok) {
-            return (await resp.json()) as any
+            if (resp.ok) {
+              return (await resp.json()) as any
+            }
+          } catch (e: any) {
+            console.log(e)
           }
           return null
         },
@@ -352,31 +355,35 @@ export class WtnSvc {
     try {
       return await page.evaluate(
         async ({ apiUrl, text, mode }) => {
-          const resp = await fetch(`${apiUrl}/rewrite-limited`, {
-            headers: {
-              'cache-control': 'no-cache',
-              'content-type': 'application/json',
-              'x-wordtune-origin': `${apiUrl}`,
-              'x-wordtune': '1',
-              'x-wordtune-version': '0.0.1'
-            } as any,
-            body: JSON.stringify({
-              text,
-              action: mode,
-              start: 0,
-              end: text.length,
-              selection: { wholeText: `${text}`, bulletText: '', start: 0, end: text.length },
-              draftId: 'DIV_editorContentEditable_jss24 jss25-1638001581177',
-              emailAccount: null,
-              emailMetadata: {},
-              lookaheadIndex: 0,
-              isBatch: false
-            }),
-            method: 'POST'
-          })
+          try {
+            const resp = await fetch(`${apiUrl}/rewrite-limited`, {
+              headers: {
+                'cache-control': 'no-cache',
+                'content-type': 'application/json',
+                'x-wordtune-origin': `${apiUrl}`,
+                'x-wordtune': '1',
+                'x-wordtune-version': '0.0.1'
+              } as any,
+              body: JSON.stringify({
+                text,
+                action: mode,
+                start: 0,
+                end: text.length,
+                selection: { wholeText: `${text}`, bulletText: '', start: 0, end: text.length },
+                // draftId: 'DIV_editorContentEditable_jss24 jss25-1638001581177',
+                emailAccount: null,
+                emailMetadata: {},
+                lookaheadIndex: 0,
+                isBatch: false
+              }),
+              method: 'POST'
+            })
 
-          if (resp.ok) {
-            return (await resp.json()) as any
+            if (resp.ok) {
+              return (await resp.json()) as any
+            }
+          } catch (e: any) {
+            console.log(e)
           }
           return null
         },
