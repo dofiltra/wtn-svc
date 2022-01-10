@@ -274,7 +274,8 @@ export class WtnSvc {
       }
     })
 
-    if (inst.page.isClosed()) {
+    if (inst.page?.isClosed()) {
+      Proxifible.changeUseCountProxy(inst.proxyItem?.url(), Proxifible.limitPerProxy)
       await WtnSvc.closeInstance(inst.id)
     } else {
       WtnSvc.updateInstance(inst.id, {
@@ -405,7 +406,8 @@ export class WtnSvc {
       return respResult as TRewriteResult
     } catch (error: any) {
       console.log(error)
-      return null
     }
+
+    return null
   }
 }
