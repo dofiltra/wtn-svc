@@ -279,16 +279,18 @@ diff@^4.0.1:
   resolved "https://registry.yarnpkg.com/diff/-/diff-4.0.2.tgz#60f3aecb89d5fae520c11aa19efc2bb982aade7d"
   integrity sha512-58lmxKSA4BNyLz+HHMUzlOEpg09FV+ev6ZMe3vJihgdxzgcwZ8VoEEPmALCZG9LmqfVoNMMKpttIYTVG6uDY7A==
 
-dofiltra_api@^1.1.40:
-  version "1.1.40"
-  resolved "https://registry.yarnpkg.com/dofiltra_api/-/dofiltra_api-1.1.40.tgz#03940e7afa0f9390285d3d265dccf0cac1724311"
-  integrity sha512-B30elfKu1UzhidjEH+ON7tD7DSAUcdcMT5gdMsJnqMQ+a8ZEZ5BTW2ZM4F5fSh2a42wlP47plFXwIU37kYZdcA==
+dofiltra_api@^1.1.41:
+  version "1.1.41"
+  resolved "https://registry.yarnpkg.com/dofiltra_api/-/dofiltra_api-1.1.41.tgz#e441016ed5525cf7361b3a69a51e1bc72c076895"
+  integrity sha512-KAyIAXeyJJJcsZdwGYYnXFwFW7ZC1WvEvXHyD2WLDhbfm+Ugh6620QbHFBo3D0z/Zg4SPEgCy297pKEdQY0COA==
   dependencies:
     dotenv "^10.0.0"
-    dprx-types "^1.1.10"
+    dprx-types "^1.1.25"
     esm-requirer "^1.0.3"
     form-data "^4.0.0"
     fs-extreme "^1.0.2"
+    lodash "^4.17.21"
+    make-fetch-happen "^9.1.0"
     mime-helper "^1.0.1"
     node-fetch "^3.1.0"
     time-helpers "^1.0.0"
@@ -298,15 +300,13 @@ dotenv@^10.0.0:
   resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-10.0.0.tgz#3d4227b8fb95f81096cdd2b66653fb2c7085ba81"
   integrity sha512-rlBi9d8jpv9Sf1klPjNfFAuWDjKLwTIJJ/VxtoTwIR6hnZxcEOQCZg2oIL3MWBYw5GpUDKOEnND7LXTbIpQ03Q==
 
-dprx-types@^1.1.10, dprx-types@^1.1.24:
-  version "1.1.24"
-  resolved "https://registry.yarnpkg.com/dprx-types/-/dprx-types-1.1.24.tgz#d50f46317c55f3dbc88381a99c288c409f28c61e"
-  integrity sha512-N/FVO5Cp6dPFsVYD02zB+z3N4rp2s9uikrx03XGQ6MZ6iUrvn4F6/FDAjSMcZ8E/7c6mSAU6afMabPdnys6KVw==
+dprx-types@^1.1.25:
+  version "1.1.25"
+  resolved "https://registry.yarnpkg.com/dprx-types/-/dprx-types-1.1.25.tgz#e5b285b73e228e5b7041c795ffe078a3f64c1810"
+  integrity sha512-XRdquSBjZJ7E6V0vD0sRifVRWq3z8eNMezPGWA+EW0sUUCERh9DbJlWKEbQtjjHOQ+HwfQlK55MiDGjD/Wty0A==
   dependencies:
-    dofiltra_api "^1.1.40"
     dotenv "^10.0.0"
     esm-requirer "^1.0.3"
-    make-fetch-happen "^9.1.0"
     time-helpers "^1.0.0"
 
 encoding@^0.1.12:
@@ -793,10 +793,10 @@ pend@~1.2.0:
   resolved "https://registry.yarnpkg.com/pend/-/pend-1.2.0.tgz#7a57eb550a6783f9115331fcf4663d5c8e007a50"
   integrity sha1-elfrVQpng/kRUzH89GY9XI4AelA=
 
-playwright-core@=1.17.1:
-  version "1.17.1"
-  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.17.1.tgz#a16e0f89284a0ed8ae6d77e1c905c84b8a2ba022"
-  integrity sha512-C3c8RpPiC3qr15fRDN6dx6WnUkPLFmST37gms2aoHPDRvp7EaGDPMMZPpqIm/QWB5J40xDrQCD4YYHz2nBTojQ==
+playwright-core@=1.17.2:
+  version "1.17.2"
+  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.17.2.tgz#916254fa8fb3eb76c160b5c2e06bc979d6ec2cf8"
+  integrity sha512-TCYIt2UNHvqGxvD79bBjBv9osDLAH1gn7AZD5kRpMNQJG6BAmJt8B4Ek8fzdKmCQOnHf9ASJmcYRszoIZxcdVA==
   dependencies:
     commander "^8.2.0"
     debug "^4.1.1"
@@ -816,11 +816,11 @@ playwright-core@=1.17.1:
     yazl "^2.5.1"
 
 playwright@^1.16.3:
-  version "1.17.1"
-  resolved "https://registry.yarnpkg.com/playwright/-/playwright-1.17.1.tgz#a6d63302ee40f41283c4bf869de261c4743a787c"
-  integrity sha512-DisCkW9MblDJNS3rG61p8LiLA2WA7IY/4A4W7DX4BphWe/HuWjKmGQptuk4NVIh5UuSwXpW/jaH2+ZgjHs3GMA==
+  version "1.17.2"
+  resolved "https://registry.yarnpkg.com/playwright/-/playwright-1.17.2.tgz#918b9a7e43ac8640fa3e2162ce0cb8b395c55fb7"
+  integrity sha512-u1HZmVoeLCLptNcpuOyp5KfBzsdsLxE9CReK82i/p8j5i7EPqtY3fX77SMHqDGeO7tLBSYk2a6eFDVlQfSSANg==
   dependencies:
-    playwright-core "=1.17.1"
+    playwright-core "=1.17.2"
 
 pngjs@^5.0.0:
   version "5.0.0"

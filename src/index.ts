@@ -5,7 +5,7 @@ import _ from 'lodash'
 import PQueue from 'p-queue'
 import crypto from 'crypto'
 import { BrowserManager, devices, Page } from 'browser-manager'
-import { Proxifible } from 'dprx-types'
+import { Proxifible } from 'dofiltra_api'
 import { TRewriterInstance, TRewriterInstanceOpts, TSuggestionsOpts, TRewriteResult, TRewriterSettings } from './types'
 import { sleep } from 'time-helpers'
 

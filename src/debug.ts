@@ -5,7 +5,7 @@ import { WtnSvc } from '.'
 import dotenv from 'dotenv'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import { Proxifible, ProxyItem, RewriteMode } from 'dprx-types'
+import { ProxyItem, RewriteMode } from 'dprx-types'
 
 const debug = async () => {
   const rootPath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
