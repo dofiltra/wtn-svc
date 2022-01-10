@@ -151,7 +151,7 @@ export class WtnSvc {
     const { headless, maxPerUse = 100, liveMinutes = 10 } = opts
     const instanceLiveSec = liveMinutes * 60
 
-    const isDynamicMode = true//_.random(true) > 0.75
+    const isDynamicMode = true // _.random(true) > 0.75
     const sortBy: ('changeUrl' | 'useCount')[] = ['changeUrl', 'useCount']
     const sortOrder: ('asc' | 'desc')[] = [isDynamicMode ? 'asc' : 'desc', 'asc']
     const proxies = await Proxifible.getProxies(
