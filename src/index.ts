@@ -300,6 +300,10 @@ export class WtnSvc {
     }
 
     try {
+      if (page.isClosed()) {
+        return null
+      }
+
       return await page.evaluate(
         async ({ token, apiUrl, text, mode }) => {
           try {
