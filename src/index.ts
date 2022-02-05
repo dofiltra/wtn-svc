@@ -306,7 +306,7 @@ export class WtnSvc {
       }
 
       return await page.evaluate(
-        async ({ token, apiUrl, text, mode }) => {
+        async ({ token, apiUrl, text, mode, draftId }) => {
           try {
             const resp = await fetch(`${apiUrl}/rewrite`, {
               headers: {
@@ -323,7 +323,7 @@ export class WtnSvc {
                 start: 0,
                 end: text.length,
                 selection: { wholeText: `${text}`, bulletText: '', start: 0, end: text.length },
-                draftId: 'DIV_editorContentEditable_jss24 jss25-1638001581177',
+                draftId,
                 emailAccount: null,
                 emailMetadata: {},
                 lookaheadIndex: 0,
@@ -344,7 +344,8 @@ export class WtnSvc {
           token: WtnSvc.token,
           apiUrl: WtnSvc.apiUrl,
           text: opts.text,
-          mode: opts.mode
+          mode: opts.mode,
+          draftId: opts.draftId || 'DIV_editorContentEditable_jss32 jss33-1644093842417'
         }
       )
     } catch (error: any) {
@@ -363,7 +364,7 @@ export class WtnSvc {
       }
 
       return await page.evaluate(
-        async ({ apiUrl, text, mode }) => {
+        async ({ apiUrl, text, mode, draftId }) => {
           try {
             const resp = await fetch(`${apiUrl}/rewrite-limited`, {
               headers: {
@@ -399,7 +400,8 @@ export class WtnSvc {
         {
           apiUrl: WtnSvc.apiUrl,
           text: opts.text,
-          mode: opts.mode
+          mode: opts.mode,
+          draftId: opts.draftId || 'DIV_editorContentEditable_jss32 jss33-1644093842417'
         }
       )
     } catch (error: any) {

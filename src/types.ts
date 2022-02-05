@@ -36,6 +36,7 @@ export type TProxyOpts = {
 export type TSuggestionsOpts = {
   text: string
   mode?: RewriteMode
+  draftId?: string
   tryLimit?: number
   tryIndex?: number
 }
