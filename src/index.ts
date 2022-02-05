@@ -151,7 +151,7 @@ export class WtnSvc {
     const { headless, maxPerUse = 100, liveMinutes = 10 } = opts
     const instanceLiveSec = liveMinutes * 60
 
-    const isDynamicMode = true // _.random(true) > 0.75
+    const isDynamicMode = true
     const sortBy: ('changeUrl' | 'useCount')[] = ['changeUrl', 'useCount']
     const sortOrder: ('asc' | 'desc')[] = [isDynamicMode ? 'asc' : 'desc', 'asc']
     const proxies = await Proxifible.getProxies(
@@ -353,6 +353,10 @@ export class WtnSvc {
 
   private async getDemoResult(page: Page, opts: TSuggestionsOpts) {
     try {
+      if (page.isClosed()) {
+        return null
+      }
+
       return await page.evaluate(
         async ({ apiUrl, text, mode }) => {
           try {
@@ -403,6 +407,11 @@ export class WtnSvc {
   private async getClickResult(inst: TRewriterInstance, opts: TSuggestionsOpts) {
     try {
       const page = inst.page
+
+      if (page.isClosed()) {
+        return null
+      }
+
       await page.type('#widget-textarea', opts.text)
       await page.evaluate((e) => {
         window.document.getElementById('widget-rewrite-button')?.click()
