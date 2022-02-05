@@ -238,7 +238,7 @@ export class WtnSvc {
     }
 
     const inst = await WtnSvc.getInstance('WTN')
-    Proxifible.changeUseCountProxy(inst.proxyItem?.url())
+    await Proxifible.changeUseCountProxy(inst.proxyItem?.url())
 
     const result: TRewriteResult | null = await new Promise(async (resolve) => {
       try {
@@ -275,7 +275,7 @@ export class WtnSvc {
     })
 
     if (inst.page?.isClosed()) {
-      Proxifible.changeUseCountProxy(inst.proxyItem?.url(), Proxifible.limitPerProxy)
+      await Proxifible.changeUseCountProxy(inst.proxyItem?.url(), Proxifible.limitPerProxy)
       await WtnSvc.closeInstance(inst.id)
     } else {
       WtnSvc.updateInstance(inst.id, {
