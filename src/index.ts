@@ -249,7 +249,7 @@ export class WtnSvc {
         }
 
         // by token
-        if (WtnSvc.token && !WtnSvc.pauseTokens[WtnSvc.token]) {
+        if (Math.random() > 0.85 && WtnSvc.token && !WtnSvc.pauseTokens[WtnSvc.token]) {
           const apiResult: TRewriteResult | null = await this.getApiResult(inst?.page, opts)
           if (apiResult?.suggestions?.length) {
             return resolve(apiResult)
