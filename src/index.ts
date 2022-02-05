@@ -208,6 +208,7 @@ export class WtnSvc {
         page.on('response', async (response) => {
           const statusCode = response.status()
           if (statusCode === 429 || statusCode === 456) {
+            WtnSvc.pauseTokens[WtnSvc.token!] = 'Limit 2000 per day'
             await Proxifible.changeUseCountProxy(proxyItem?.url(), Proxifible.limitPerProxy)
             await this.closeInstance(id)
             return
