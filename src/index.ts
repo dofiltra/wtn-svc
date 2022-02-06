@@ -240,7 +240,6 @@ export class WtnSvc {
 
     const inst = await WtnSvc.getInstance('WTN')
     await Proxifible.changeUseCountProxy(inst.proxyItem?.url())
-    console.log(inst.proxyItem)
 
     const result: TRewriteResult | null = await new Promise(async (resolve) => {
       try {
