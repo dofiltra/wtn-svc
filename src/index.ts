@@ -43,7 +43,7 @@ export class WtnSvc {
       await Proxifible.loadProxies()
     }
 
-    await this.createInstances()
+    // await this.createInstances()
 
     const queue = this.queue
     queue.concurrency = s.instanceOpts?.reduce((sum, instOpts) => sum + instOpts.maxInstance, 0) || 1
@@ -148,10 +148,10 @@ export class WtnSvc {
   }
 
   protected static async createWtnBro(opts: TRewriterInstanceOpts, newInstancesCount: number): Promise<void> {
-    const { headless, maxPerUse = 100, liveMinutes = 10 } = opts
+    const { headless, maxPerUse = 100, liveMinutes = 10, maxInstance = 0 } = opts
     const instanceLiveSec = liveMinutes * 60
 
-    const isDynamicMode = true
+    const isDynamicMode = _.random(true) > 0.5 // true
     const sortBy: ('changeUrl' | 'useCount')[] = ['changeUrl', 'useCount']
     const sortOrder: ('asc' | 'desc')[] = [isDynamicMode ? 'asc' : 'desc', 'asc']
     const proxies = await Proxifible.getProxies(
@@ -160,7 +160,8 @@ export class WtnSvc {
         filterVersions: [4],
         sortBy,
         sortOrder,
-        forceChangeIp: true
+        forceChangeIp: true,
+        maxUseCount: 200
       },
       newInstancesCount
     )
@@ -168,7 +169,7 @@ export class WtnSvc {
     await Promise.all(
       new Array(...new Array(newInstancesCount)).map(async (x, i) => {
         await sleep(i * 2000)
-        console.log(`Dorewrita: Creating instance #${this.instances.length + 1} of ${opts.maxInstance}...`)
+        console.log(`Dorewrita: Creating #${i} of ${maxInstance} | Instances = [${this.instances.length}]...`)
 
         const proxyItem = proxies[i]
         if (!proxyItem) {
@@ -215,7 +216,7 @@ export class WtnSvc {
           }
         })
 
-        console.log(`Dorewrita: Created instance #${this.instances.length + 1} of ${opts.maxInstance}`)
+        console.log(`Dorewrita: Success instance #${this.instances.length + 1} of ${maxInstance}`)
 
         this.instances.push({
           id,
