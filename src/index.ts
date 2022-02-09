@@ -168,7 +168,7 @@ export class WtnSvc {
     await Promise.all(
       new Array(...new Array(newInstancesCount)).map(async (x, i) => {
         await sleep(i * 2000)
-        console.log(`Dorewrita: Creating instance...`)
+        console.log(`Dorewrita: Creating instance #${this.instances.length + 1} of ${opts.maxInstance}...`)
 
         const proxyItem = proxies[i]
         if (!proxyItem) {
