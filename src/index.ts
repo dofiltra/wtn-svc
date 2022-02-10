@@ -67,7 +67,7 @@ export class WtnSvc {
   }
 
   protected static async updateProxies() {
-    const isDynamicMode = false // _.random(true) > 0.5 // true
+    const isDynamicMode =  _.random(true) > 0.5 // true
     const sortBy: ('changeUrl' | 'useCount')[] = ['changeUrl', 'useCount']
     const sortOrder: ('asc' | 'desc')[] = [isDynamicMode ? 'asc' : 'desc', 'asc']
 
