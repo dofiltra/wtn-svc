@@ -43,7 +43,7 @@ const debug = async () => {
   const res = await Promise.all(
     texts.map(async (text, i) => {
       const r = await wtn.getSuggestions({ text, mode: RewriteMode.Longer })
-     // console.log(i, r)
+      // console.log(i, r)
 
       return r
     })
