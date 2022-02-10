@@ -169,6 +169,10 @@ export class WtnSvc {
 
     await Promise.all(
       new Array(...new Array(newInstancesCount)).map(async (x, i) => {
+        if (this.instances.length > maxInstance) {
+          return
+        }
+
         await sleep(i * 2000)
         console.log(
           `Dorewrita: Creating #${this.instances.length + 1} of ${maxInstance} | Instances = [${this.instances.length}]`
