@@ -8,6 +8,7 @@ import { BrowserManager, devices, Page } from 'browser-manager'
 import { Proxifible } from 'dofiltra_api'
 import { TRewriterInstance, TRewriterInstanceOpts, TSuggestionsOpts, TRewriteResult, TRewriterSettings } from './types'
 import { sleep } from 'time-helpers'
+import { ProxyItem } from 'dprx-types'
 
 export * from './types'
 export const WTN_MAX_LENGTH = 280
@@ -29,6 +30,7 @@ export class WtnSvc {
   protected static queue = new PQueue({ concurrency: 1 })
   protected static queueResults: { [id: string]: TRewriteResult } = {}
   protected static token: string | undefined = ''
+  protected static proxies: ProxyItem[] = []
 
   protected static svcUrl = 'https://www.wordtune.com'
   protected static apiUrl = 'https://api.wordtune.com'
@@ -39,11 +41,8 @@ export class WtnSvc {
       this.instanceOpts = s.instanceOpts
     }
 
-    if (!Proxifible.proxies.length) {
-      await Proxifible.loadProxies()
-    }
-
     // await this.createInstances()
+    await this.updateProxies()
 
     const queue = this.queue
     queue.concurrency = s.instanceOpts?.reduce((sum, instOpts) => sum + instOpts.maxInstance, 0) || 1
@@ -67,15 +66,33 @@ export class WtnSvc {
     }
   }
 
-  protected static async createInstances() {
-    if (this.creatingInstances) {
-      while (this.creatingInstances) {
-        await sleep(_.random(10e3, 15e3))
-      }
+  protected static async updateProxies() {
+    const isDynamicMode = false // _.random(true) > 0.5 // true
+    const sortBy: ('changeUrl' | 'useCount')[] = ['changeUrl', 'useCount']
+    const sortOrder: ('asc' | 'desc')[] = [isDynamicMode ? 'asc' : 'desc', 'asc']
 
-      if (this.instances.length) {
-        return
-      }
+    this.proxies = await Proxifible.getProxies(
+      {
+        filterTypes: ['http', 'https'],
+        filterVersions: [4],
+        sortBy,
+        sortOrder,
+        forceChangeIp: true,
+        maxUseCount: 1e3
+      },
+      Number.MAX_SAFE_INTEGER
+    )
+  }
+
+  protected static async getAvailableProxy() {
+    const busyProxies = this.instances.filter((inst) => inst.proxyItem).map((inst) => inst.proxyItem?.url())
+
+    return this.proxies.find((p) => !busyProxies.includes(p.url()))
+  }
+
+  protected static async createInstances() {
+    while (this.creatingInstances) {
+      await sleep(_.random(5e3, 10e3))
     }
 
     this.creatingInstances = true
@@ -90,7 +107,7 @@ export class WtnSvc {
 
       switch (type) {
         case 'WTN':
-          await this.createWtnBro(opts, newInstanceCount)
+          await this.createWtnBro(opts, 1) // 1
           break
       }
     }
@@ -151,27 +168,14 @@ export class WtnSvc {
     const { headless, maxPerUse = 100, liveMinutes = 10, maxInstance = 0 } = opts
     const instanceLiveSec = liveMinutes * 60
 
-    const isDynamicMode = _.random(true) > 0.5 // true
-    const sortBy: ('changeUrl' | 'useCount')[] = ['changeUrl', 'useCount']
-    const sortOrder: ('asc' | 'desc')[] = [isDynamicMode ? 'asc' : 'desc', 'asc']
-    const proxies = await Proxifible.getProxies(
-      {
-        filterTypes: ['http', 'https'],
-        filterVersions: [4],
-        sortBy,
-        sortOrder,
-        forceChangeIp: true,
-        maxUseCount: 200
-      },
-      newInstancesCount
-    )
-
     await Promise.all(
       new Array(...new Array(newInstancesCount)).map(async (x, i) => {
         await sleep(i * 2000)
-        console.log(`Dorewrita: Creating #${i} of ${maxInstance} | Instances = [${this.instances.length}]...`)
+        console.log(
+          `Dorewrita: Creating #${this.instances.length + 1} of ${maxInstance} | Instances = [${this.instances.length}]`
+        )
 
-        const proxyItem = proxies[i]
+        const proxyItem = await this.getAvailableProxy()
         if (!proxyItem) {
           return
         }
@@ -216,8 +220,6 @@ export class WtnSvc {
           }
         })
 
-        console.log(`Dorewrita: Success instance #${this.instances.length + 1} of ${maxInstance}`)
-
         this.instances.push({
           id,
           type: 'WTN',
@@ -228,6 +230,8 @@ export class WtnSvc {
           page,
           proxyItem
         } as TRewriterInstance)
+
+        console.log(`Dorewrita: Success instance #${this.instances.length} of ${maxInstance}`)
       })
     )
   }
@@ -241,6 +245,7 @@ export class WtnSvc {
 
     const inst = await WtnSvc.getInstance('WTN')
     await Proxifible.changeUseCountProxy(inst.proxyItem?.url())
+    console.log(`WTN: ${text.slice(0, 50)}...`, inst.proxyItem?.url())
 
     const result: TRewriteResult | null = await new Promise(async (resolve) => {
       try {

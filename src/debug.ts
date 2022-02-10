@@ -6,6 +6,7 @@ import dotenv from 'dotenv'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { RewriteMode } from 'dprx-types'
+import { sleep } from 'time-helpers'
 
 const debug = async () => {
   const rootPath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
@@ -33,10 +34,16 @@ const debug = async () => {
     texts.push(text)
   }
 
+  const r1 = await wtn.getSuggestions({ text: texts[0], mode: RewriteMode.Longer })
+  // await sleep(5e3)
+  const r2 = await wtn.getSuggestions({ text: texts[1], mode: RewriteMode.Longer })
+  // await sleep(1e3)
+  const r3 = await wtn.getSuggestions({ text: texts[2], mode: RewriteMode.Longer })
+
   const res = await Promise.all(
     texts.map(async (text, i) => {
       const r = await wtn.getSuggestions({ text, mode: RewriteMode.Longer })
-      console.log(i, r)
+     // console.log(i, r)
 
       return r
     })
