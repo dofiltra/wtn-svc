@@ -41,8 +41,7 @@ export class WtnSvc {
       this.instanceOpts = s.instanceOpts
     }
 
-    // await this.createInstances()
-    await this.updateProxies()
+    await this.updateProxies({ forceChangeIp: true })
 
     const queue = this.queue
     queue.concurrency = s.instanceOpts?.reduce((sum, instOpts) => sum + instOpts.maxInstance, 0) || 1
@@ -66,7 +65,7 @@ export class WtnSvc {
     }
   }
 
-  protected static async updateProxies() {
+  protected static async updateProxies({ forceChangeIp = true }: { forceChangeIp: boolean }) {
     const isDynamicMode = _.random(true) > 0.5 // true
     const sortBy: ('changeUrl' | 'useCount')[] = ['changeUrl', 'useCount']
     const sortOrder: ('asc' | 'desc')[] = [isDynamicMode ? 'asc' : 'desc', 'asc']
@@ -77,7 +76,7 @@ export class WtnSvc {
         filterVersions: [4],
         sortBy,
         sortOrder,
-        forceChangeIp: true,
+        forceChangeIp,
         maxUseCount: 1e3
       },
       Number.MAX_SAFE_INTEGER
@@ -86,7 +85,7 @@ export class WtnSvc {
 
   protected static async getAvailableProxy() {
     const busyProxies = this.instances.filter((inst) => inst.proxyItem).map((inst) => inst.proxyItem?.url())
-    await this.updateProxies()
+    await this.updateProxies({ forceChangeIp: false })
     return this.proxies.find((p) => !busyProxies.includes(p.url()))
   }
 
