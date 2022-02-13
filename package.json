@@ -46,7 +46,7 @@
     "browser-manager": "^1.1.19",
     "dofiltra_api": "^1.1.48",
     "dotenv": "^16.0.0",
-    "dprx-types": "^1.1.57",
+    "dprx-types": "^1.1.60",
     "lodash": "^4.17.21",
     "p-queue": "^7.2.0",
     "time-helpers": "^1.0.0"
