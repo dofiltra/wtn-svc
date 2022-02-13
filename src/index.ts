@@ -77,7 +77,7 @@ export class WtnSvc {
         sortBy,
         sortOrder,
         forceChangeIp,
-        maxUseCount: 1e3
+        maxUseCount: Number.MAX_SAFE_INTEGER
       },
       Number.MAX_SAFE_INTEGER
     )
@@ -86,7 +86,13 @@ export class WtnSvc {
   protected static async getAvailableProxy() {
     const busyProxies = this.instances.filter((inst) => inst.proxyItem).map((inst) => inst.proxyItem?.url())
     await this.updateProxies({ forceChangeIp: false })
-    return this.proxies.find((p) => !busyProxies.includes(p.url()))
+    let proxyItem = this.proxies.find((p) => !busyProxies.includes(p.url()))
+
+    if (!proxyItem) {
+      await this.updateProxies({ forceChangeIp: true })
+    }
+
+    return proxyItem
   }
 
   protected static async createInstances() {
