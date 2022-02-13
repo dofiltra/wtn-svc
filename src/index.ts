@@ -90,6 +90,7 @@ export class WtnSvc {
 
     if (!proxyItem) {
       await this.updateProxies({ forceChangeIp: true })
+      proxyItem = this.proxies.find((p) => !busyProxies.includes(p.url()))
     }
 
     return proxyItem
