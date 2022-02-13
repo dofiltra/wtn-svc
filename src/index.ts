@@ -255,7 +255,7 @@ export class WtnSvc {
 
     const inst = await WtnSvc.getInstance('WTN')
     await Proxifible.changeUseCountProxy(inst.proxyItem?.url())
-    console.log(`\n\nWTN: ${text.slice(0, 50)}...\n`, inst.proxyItem?.url(), inst.proxyItem?.useCount, '\n')
+    // console.log(`\n\nWTN: ${text.slice(0, 50)}...\n`, inst.proxyItem?.url(), inst.proxyItem?.useCount, '\n')
 
     const result: TRewriteResult | null = await new Promise(async (resolve) => {
       try {
