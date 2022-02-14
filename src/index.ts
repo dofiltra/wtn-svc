@@ -8,7 +8,7 @@ import { BrowserManager, devices, Page } from 'browser-manager'
 import { Proxifible } from 'dofiltra_api'
 import { TRewriterInstance, TRewriterInstanceOpts, TSuggestionsOpts, TRewriteResult, TRewriterSettings } from './types'
 import { sleep } from 'time-helpers'
-import { ProxyItem } from 'dprx-types'
+import { AppState, ProxyItem } from 'dprx-types'
 
 export * from './types'
 export const WTN_MAX_LENGTH = 280
@@ -84,6 +84,11 @@ export class WtnSvc {
   }
 
   protected static async getAvailableProxy() {
+    if (Proxifible.state !== AppState.Active) {
+      await sleep(_.random(5e3, 10e3))
+      return
+    }
+
     const busyProxies = this.instances.filter((inst) => inst.proxyItem).map((inst) => inst.proxyItem?.url())
     await this.updateProxies({ forceChangeIp: false })
     let proxyItem = this.proxies.find((p) => !busyProxies.includes(p.url()))

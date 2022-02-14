@@ -279,18 +279,18 @@ diff@^4.0.1:
   resolved "https://registry.yarnpkg.com/diff/-/diff-4.0.2.tgz#60f3aecb89d5fae520c11aa19efc2bb982aade7d"
   integrity sha512-58lmxKSA4BNyLz+HHMUzlOEpg09FV+ev6ZMe3vJihgdxzgcwZ8VoEEPmALCZG9LmqfVoNMMKpttIYTVG6uDY7A==
 
-dofiltra_api@^1.1.48:
-  version "1.1.48"
-  resolved "https://registry.yarnpkg.com/dofiltra_api/-/dofiltra_api-1.1.48.tgz#f961c6ea571c934a33f405b0f1f7465bc638cc0f"
-  integrity sha512-85bosw4Zkw62LBVcoTfu/FVkdmQDP4aZQUw8af4m0ImuQUYHRd6YhRUnBg1JZgbxfIOmnwPU+iCsZPD9SeWKqw==
+dofiltra_api@^1.1.49:
+  version "1.1.49"
+  resolved "https://registry.yarnpkg.com/dofiltra_api/-/dofiltra_api-1.1.49.tgz#fe88d5447acd9a8615dc8a050e99731e80b9c72b"
+  integrity sha512-bzQXi/5Q7MML2/69HLedk29GhT0neIofRgw467W8//2KweiJTgcPKdppCwngoxRa+vxe5XdIgfZgyfMaXlQHIQ==
   dependencies:
     dotenv "^16.0.0"
-    dprx-types "^1.1.57"
+    dprx-types "^1.1.63"
     esm-requirer "^1.0.3"
     form-data "^4.0.0"
     fs-extreme "^1.0.2"
     lodash "^4.17.21"
-    make-fetch-happen "^10.0.0"
+    make-fetch-happen "^10.0.2"
     mime-helper "^1.0.1"
     node-fetch "^3.2.0"
     time-helpers "^1.0.0"
@@ -300,10 +300,10 @@ dotenv@^16.0.0:
   resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-16.0.0.tgz#c619001253be89ebb638d027b609c75c26e47411"
   integrity sha512-qD9WU0MPM4SWLPJy/r2Be+2WgQj8plChsyrCNQzW/0WjvcJQiKQJ9mH3ZgB3fxbUUxgc/11ZJ0Fi5KiimWGz2Q==
 
-dprx-types@^1.1.57, dprx-types@^1.1.60:
-  version "1.1.60"
-  resolved "https://registry.yarnpkg.com/dprx-types/-/dprx-types-1.1.60.tgz#21fd98d3288eec64f747d03b30e6bdef6041b23a"
-  integrity sha512-/eOhs59Aqj8wgBfWrikfWPoV5VT5n7eCbUCeN4No6M/5IsuNJRvtEWb5L7kAlHAQ6KBAq2UDed8KM+55c1An8w==
+dprx-types@^1.1.63:
+  version "1.1.63"
+  resolved "https://registry.yarnpkg.com/dprx-types/-/dprx-types-1.1.63.tgz#2a3b688cf2a3b14ddf6807c08a79b0f73bb0894d"
+  integrity sha512-mklVTCshFA7iP/I7vbRykGEUyyoWa+c7yusdPQs9pujUU+D4i2ysMFinKSvHkaCcirkicHp6XL6vryHbNrRQRQ==
   dependencies:
     dotenv "^16.0.0"
     esm-requirer "^1.0.3"
@@ -603,7 +603,7 @@ lru-cache@^7.3.1:
   resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-7.3.1.tgz#7702e80694ec2bf19865567a469f2b081fcf53f5"
   integrity sha512-nX1x4qUrKqwbIAhv4s9et4FIUVzNOpeY07bsjGUy8gwJrXH/wScImSQqXErmo/b2jZY2r0mohbLA9zVj7u1cNw==
 
-make-fetch-happen@^10.0.0:
+make-fetch-happen@^10.0.2:
   version "10.0.2"
   resolved "https://registry.yarnpkg.com/make-fetch-happen/-/make-fetch-happen-10.0.2.tgz#0afb38d2f951b17ebc482b0b16c8d77f39dfe389"
   integrity sha512-JSFLK53NJP22FL/eAGOyKsWbc2G3v+toPMD7Dq9PJKQCvK0i3t8hGkKxe+3YZzwYa+c0kxRHu7uxH3fvO+rsaA==
