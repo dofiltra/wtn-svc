@@ -84,7 +84,8 @@ export class WtnSvc {
   }
 
   protected static async getAvailableProxy() {
-    if (Proxifible.state !== AppState.Active) {
+    if (Proxifible.state.toUpperCase() !== AppState.Active.toUpperCase()) {
+      console.log('Proxifible.state', Proxifible.state)
       await sleep(_.random(5e3, 10e3))
       return
     }
