@@ -37,14 +37,11 @@ export class WtnSvc {
 
   static async build(s: TRewriterSettings) {
     this.token = s.token
-    if (s.instanceOpts?.length) {
-      this.instanceOpts = s.instanceOpts
-    }
 
+    await this.updateSettings(s)
     await this.updateProxies({ forceChangeIp: true })
 
     const queue = this.queue
-    queue.concurrency = s.instanceOpts?.reduce((sum, instOpts) => sum + instOpts.maxInstance, 0) || 1
     queue.on('active', () => {
       // console.log(`QStarted! S/P: ${queue.size}/ ${queue.pending} | Date: ${new Date().toJSON()}`)
     })
@@ -63,6 +60,14 @@ export class WtnSvc {
     if (!isBuild) {
       throw new Error('use static WtnSvc.build(settings)')
     }
+  }
+
+  static async updateSettings(s: TRewriterSettings) {
+    if (s.instanceOpts?.length) {
+      this.instanceOpts = s.instanceOpts
+    }
+
+    this.queue.concurrency = s.instanceOpts?.reduce((sum, instOpts) => sum + instOpts.maxInstance, 0) || 1
   }
 
   protected static async updateProxies({ forceChangeIp = true }: { forceChangeIp: boolean }) {
