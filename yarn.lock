@@ -129,14 +129,14 @@ brace-expansion@^1.1.7:
     balanced-match "^1.0.0"
     concat-map "0.0.1"
 
-browser-manager@^1.1.19:
-  version "1.1.19"
-  resolved "https://registry.yarnpkg.com/browser-manager/-/browser-manager-1.1.19.tgz#d9a1fa123f9cb235a7ee7e127cf70aae875f45a6"
-  integrity sha512-iHan6Xwwvw8DogJeURrDkQTJkmfNaVIvoX4e9+KC2WCl5eYvOl4805kxBhnEGZxyNYl1KwYl8hFprz6wHImWoQ==
+browser-manager@^1.1.20:
+  version "1.1.20"
+  resolved "https://registry.yarnpkg.com/browser-manager/-/browser-manager-1.1.20.tgz#d22ca01a1f4a96dac9a054890d1034eb07abfe03"
+  integrity sha512-/6VCr7G7rNgt0SI58buEUME+I76XwOk1neAxzClqBjD1Q5B+Yu8Dat0nnzA8mzdK/Pfbig0xOWMKyLn+VmmyBw==
   dependencies:
     is-running-process "^1.0.0"
     lodash "^4.17.21"
-    playwright "^1.18.1"
+    playwright "^1.19.1"
     time-helpers "^1.0.0"
     tor-mgr "^1.0.0"
 
@@ -826,7 +826,7 @@ playwright-core@1.19.1:
     yauzl "2.10.0"
     yazl "2.5.1"
 
-playwright@^1.18.1:
+playwright@^1.19.1:
   version "1.19.1"
   resolved "https://registry.yarnpkg.com/playwright/-/playwright-1.19.1.tgz#5db88245932036ba208dbc2db8d5291ca50199e1"
   integrity sha512-h1iCJ1S2eAkZ67lZCmOxhRiT3OKa1JFGtyHLaZV30znqIjcsJLuyB/dmo78V3ajpMdz8iwxIb2xjpaSh1G+8UA==
