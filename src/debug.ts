@@ -7,10 +7,13 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import { RewriteMode } from 'dprx-types'
 import { sleep } from 'time-helpers'
+import { Proxifible } from 'dofiltra_api'
 
 const debug = async () => {
   const rootPath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
   dotenv.config({ path: path.join(rootPath, `.env`) })
+
+  await Proxifible.loadProxies()
 
   const wtn = await WtnSvc.build({
     // token: process.env.WTNTOKEN,
