@@ -443,7 +443,7 @@ export class Dorewrita {
                   return { text: b.text, suggestions: data[0]?.paras_3?.map((p: any) => p.alt) }
                 }
               } catch {
-                // 
+                //
               }
 
               return { text: b.text, suggestions: [b.text] }
