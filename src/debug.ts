@@ -44,6 +44,12 @@ const debug = async () => {
   // await sleep(1e3)
   const r3 = await wtn.getSuggestions({ text: texts[2], mode: RewriteMode.Longer })
 
+  const resBulk = await wtn.getSuggestionsBulk(
+    texts.map((t) => ({
+      text: t
+    }))
+  )
+
   const res = await Promise.all(
     texts.map(async (text, i) => {
       const r = await wtn.getSuggestions({ text, mode: RewriteMode.Longer })

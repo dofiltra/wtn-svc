@@ -31,6 +31,7 @@ export type TRewriterSettings = {
 }
 
 export type TRewriteResult = {
+  text: string
   suggestions?: any[]
 }
 

@@ -277,34 +277,96 @@ export class Dorewrita {
     }
   }
 
+  async getSuggestionsBulk(optsBulk: TSuggestionsOpts[]): Promise<TRewriteResult[]> {
+    return await this.getSuggestionsBulkQuill({ opts: optsBulk, tryLimit: 5 })
+  }
+
   async getSuggestions(opts: TSuggestionsOpts): Promise<TRewriteResult> {
     const { text } = opts
 
     if (!text?.length || text.length > WTN_MAX_LENGTH) {
-      return { suggestions: [text] }
+      return { suggestions: [text], text }
     }
 
     const quillResult = await this.getSuggestionsQuill(opts)
     if (quillResult?.suggestions?.length) {
-      return quillResult
+      return { ...quillResult, text }
     }
 
     const wtnResult = await this.getSuggestionsWtn(opts)
     if (wtnResult?.suggestions?.length) {
-      return wtnResult
+      return { ...wtnResult, text }
     }
 
     return {
+      text,
       suggestions: [text]
     } as TRewriteResult
   }
 
   //#region QUILL
+  private async getSuggestionsBulkQuill({
+    opts,
+    tryLimit = 3,
+    tryIndex = 0
+  }: {
+    opts: TSuggestionsOpts[]
+    tryLimit?: number
+    tryIndex?: number
+  }): Promise<TRewriteResult[]> {
+    if (tryIndex > tryLimit) {
+      return []
+    }
+
+    const inst = await Dorewrita.getInstance(RewriterInstanceType.Quill)
+    await Proxifible.changeUseCountProxy(inst.proxyItem?.url())
+
+    const result: TRewriteResult[] = await new Promise(async (resolve) => {
+      try {
+        if (!inst?.page || inst.page.isClosed()) {
+          await sleep((tryIndex + 1) * 1000)
+          return resolve([])
+        }
+
+        // by demo
+        const demoResult: TRewriteResult[] | null = await this.getDemoResultQuillBulk(inst?.page, opts)
+        if (demoResult?.length) {
+          return resolve(demoResult)
+        }
+
+        return resolve([])
+      } catch (e: any) {
+        console.log(e)
+        return resolve([])
+      }
+    })
+
+    if (inst.page?.isClosed()) {
+      await Proxifible.changeUseCountProxy(inst.proxyItem?.url(), Proxifible.limitPerProxy)
+      await Dorewrita.closeInstance(inst.id)
+    } else {
+      Dorewrita.updateInstance(inst.id, {
+        idle: true,
+        usedCount: inst.usedCount + 1
+      })
+    }
+
+    if (!result?.length) {
+      return await this.getSuggestionsBulkQuill({
+        opts,
+        tryLimit,
+        tryIndex: tryIndex + 1
+      })
+    }
+
+    return result
+  }
+
   private async getSuggestionsQuill(opts: TSuggestionsOpts): Promise<TRewriteResult> {
     const { text, tryIndex = 0, tryLimit = 1 } = opts
 
     if (!text?.length || text.length > WTN_MAX_LENGTH || tryIndex >= tryLimit) {
-      return { suggestions: [text] }
+      return { suggestions: [text], text }
     }
 
     const inst = await Dorewrita.getInstance(RewriterInstanceType.Quill)
@@ -351,6 +413,55 @@ export class Dorewrita {
     return result
   }
 
+  private async getDemoResultQuillBulk(page: Page, bulk: TSuggestionsOpts[]) {
+    try {
+      if (page.isClosed()) {
+        return null
+      }
+
+      return await page.evaluate(
+        async ({ apiUrl, bulk }) => {
+          const bulkResults = await Promise.all(
+            bulk.map(async (b) => {
+              try {
+                const resp = await fetch(
+                  `${apiUrl}/api/paraphraser/single-paraphrase/2?text=${encodeURIComponent(
+                    b.text
+                  )}&strength=2&autoflip=false&wikify=false&fthresh=-1&inputLang=en&quoteIndex=-1`,
+                  {
+                    headers: {
+                      accept: 'application/json, text/plain, */*',
+                      'accept-language': 'en-US,en;q=0.9,ru;q=0.8'
+                    },
+                    method: 'GET'
+                  }
+                )
+
+                const { data = [], status } = await resp.json()
+
+                if (data[0] && status === 200) {
+                  return { text: b.text, suggestions: data[0]?.paras_3?.map((p: any) => p.alt) }
+                }
+              } catch {}
+
+              return { text: b.text, suggestions: [b.text] }
+            })
+          )
+
+          return bulkResults
+        },
+        {
+          apiUrl: Dorewrita.svcUrlQuill,
+          bulk
+        }
+      )
+    } catch (error: any) {
+      console.log(error)
+    }
+
+    return null
+  }
+
   private async getDemoResultQuill(page: Page, opts: TSuggestionsOpts) {
     try {
       if (page.isClosed()) {
@@ -376,7 +487,7 @@ export class Dorewrita {
             if (resp.ok) {
               const { data = [] } = await resp.json()
               const suggestions = data[0]?.paras_3?.map((para: any) => para?.alt).filter((para: any) => para) || null
-              return { suggestions }
+              return { suggestions, text }
             }
           } catch (e: any) {
             console.log(e)
@@ -402,7 +513,7 @@ export class Dorewrita {
     const { text, tryIndex = 0, tryLimit = 1 } = opts
 
     if (!text?.length || text.length > WTN_MAX_LENGTH || tryIndex >= tryLimit) {
-      return { suggestions: [text] }
+      return { suggestions: [text], text }
     }
 
     const inst = await Dorewrita.getInstance(RewriterInstanceType.Wtn)
