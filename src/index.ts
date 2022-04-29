@@ -278,18 +278,127 @@ export class Dorewrita {
   }
 
   async getSuggestions(opts: TSuggestionsOpts): Promise<TRewriteResult> {
+    const { text } = opts
+
+    if (!text?.length || text.length > WTN_MAX_LENGTH) {
+      return { suggestions: [text] }
+    }
+
+    const quillResult = await this.getSuggestionsQuill(opts)
+    if (quillResult?.suggestions?.length) {
+      return quillResult
+    }
+
     const wtnResult = await this.getSuggestionsWtn(opts)
-    if (wtnResult.suggestions?.length) {
+    if (wtnResult?.suggestions?.length) {
       return wtnResult
     }
 
     return {
-      suggestions: []
+      suggestions: [text]
     } as TRewriteResult
   }
 
+  //#region QUILL
+  private async getSuggestionsQuill(opts: TSuggestionsOpts): Promise<TRewriteResult> {
+    const { text, tryIndex = 0, tryLimit = 1 } = opts
+
+    if (!text?.length || text.length > WTN_MAX_LENGTH || tryIndex >= tryLimit) {
+      return { suggestions: [text] }
+    }
+
+    const inst = await Dorewrita.getInstance(RewriterInstanceType.Quill)
+    await Proxifible.changeUseCountProxy(inst.proxyItem?.url())
+    // console.log(`\n\nWTN: ${text.slice(0, 50)}...\n`, inst.proxyItem?.url(), inst.proxyItem?.useCount, '\n')
+
+    const result: TRewriteResult | null = await new Promise(async (resolve) => {
+      try {
+        if (!inst?.page || inst.page.isClosed()) {
+          await sleep((tryIndex + 1) * 1000)
+          return resolve(null)
+        }
+
+        // by demo
+        const demoResult: TRewriteResult | null = await this.getDemoResultQuill(inst?.page, opts)
+        if (demoResult?.suggestions?.length) {
+          return resolve(demoResult)
+        }
+
+        return resolve(null)
+      } catch (e: any) {
+        console.log(e)
+        return resolve(null)
+      }
+    })
+
+    if (inst.page?.isClosed()) {
+      await Proxifible.changeUseCountProxy(inst.proxyItem?.url(), Proxifible.limitPerProxy)
+      await Dorewrita.closeInstance(inst.id)
+    } else {
+      Dorewrita.updateInstance(inst.id, {
+        idle: true,
+        usedCount: inst.usedCount + 1
+      })
+    }
+
+    if (!result?.suggestions?.length) {
+      return await this.getSuggestionsQuill({
+        ...opts,
+        tryIndex: tryIndex + 1
+      })
+    }
+
+    return result
+  }
+
+  private async getDemoResultQuill(page: Page, opts: TSuggestionsOpts) {
+    try {
+      if (page.isClosed()) {
+        return null
+      }
+
+      return await page.evaluate(
+        async ({ apiUrl, text }) => {
+          try {
+            const resp = await fetch(
+              `${apiUrl}/api/paraphraser/single-paraphrase/2?text=${encodeURIComponent(
+                text
+              )}&strength=2&autoflip=false&wikify=false&fthresh=-1&inputLang=en&quoteIndex=-1`,
+              {
+                headers: {
+                  'cache-control': 'no-cache',
+                  'content-type': 'application/json'
+                } as any,
+                method: 'GET'
+              }
+            )
+
+            if (resp.ok) {
+              const { data = [] } = await resp.json()
+              const suggestions = data[0]?.paras_3?.map((para: any) => para?.alt).filter((para: any) => para) || null
+              return { suggestions }
+            }
+          } catch (e: any) {
+            console.log(e)
+          }
+          return null
+        },
+        {
+          apiUrl: Dorewrita.svcUrlQuill,
+          text: opts.text
+        }
+      )
+    } catch (error: any) {
+      console.log(error)
+    }
+
+    return null
+  }
+
+  //#endregion QUILL
+
   //#region WTN
-  async getSuggestionsWtn(opts: TSuggestionsOpts): Promise<TRewriteResult> {
+  private async getSuggestionsWtn(opts: TSuggestionsOpts): Promise<TRewriteResult> {
     const { text, tryIndex = 0, tryLimit = 1 } = opts
 
     if (!text?.length || text.length > WTN_MAX_LENGTH || tryIndex >= tryLimit) {
@@ -345,7 +454,7 @@ export class Dorewrita {
     }
 
     if (!result?.suggestions?.length) {
-      return await this.getSuggestions({
+      return await this.getSuggestionsWtn({
         ...opts,
         tryIndex: tryIndex + 1
       })

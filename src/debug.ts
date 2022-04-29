@@ -22,7 +22,7 @@ const debug = async () => {
       {
         maxInstance: 1,
         maxPerUse: 100,
-        type: RewriterInstanceType.Wtn,
+        type: RewriterInstanceType.Quill,
         headless: false,
         liveMinutes: 100
       }
