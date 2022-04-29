@@ -413,7 +413,7 @@ export class Dorewrita {
     return result
   }
 
-  private async getDemoResultQuillBulk(page: Page, bulk: TSuggestionsOpts[]) {
+  private async getDemoResultQuillBulk(page: Page, bulkOpts: TSuggestionsOpts[]) {
     try {
       if (page.isClosed()) {
         return null
@@ -442,7 +442,9 @@ export class Dorewrita {
                 if (data[0] && status === 200) {
                   return { text: b.text, suggestions: data[0]?.paras_3?.map((p: any) => p.alt) }
                 }
-              } catch {}
+              } catch {
+                // 
+              }
 
               return { text: b.text, suggestions: [b.text] }
             })
@@ -452,7 +454,7 @@ export class Dorewrita {
         },
         {
           apiUrl: Dorewrita.svcUrlQuill,
-          bulk
+          bulk: bulkOpts
         }
       )
     } catch (error: any) {
