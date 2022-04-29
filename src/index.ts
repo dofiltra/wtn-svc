@@ -6,7 +6,14 @@ import PQueue from 'p-queue'
 import crypto from 'crypto'
 import { BrowserManager, devices, Page } from 'browser-manager'
 import { Proxifible } from 'dofiltra_api'
-import { TRewriterInstance, TRewriterInstanceOpts, TSuggestionsOpts, TRewriteResult, TRewriterSettings } from './types'
+import {
+  TRewriterInstance,
+  TRewriterInstanceOpts,
+  TSuggestionsOpts,
+  TRewriteResult,
+  TRewriterSettings,
+  RewriterInstanceType
+} from './types'
 import { sleep } from 'time-helpers'
 import { AppState, ProxyItem } from 'dprx-types'
 
@@ -20,7 +27,7 @@ export class WtnSvc {
   protected static pauseTokens: { [token: string]: string } = {}
   protected static instanceOpts: TRewriterInstanceOpts[] = [
     {
-      type: 'WTN',
+      type: RewriterInstanceType.Wtn,
       liveMinutes: 10,
       maxPerUse: 100,
       maxInstance: 1,
@@ -32,8 +39,10 @@ export class WtnSvc {
   protected static token: string | undefined = ''
   protected static proxies: ProxyItem[] = []
 
-  protected static svcUrl = 'https://www.wordtune.com'
-  protected static apiUrl = 'https://api.wordtune.com'
+  protected static svcUrlWtn = 'https://www.wordtune.com'
+  protected static apiUrlWtn = 'https://api.wordtune.com'
+
+  protected static svcUrlQuill = 'https://quillbot.com'
 
   static async build(s: TRewriterSettings) {
     this.token = s.token
@@ -123,7 +132,7 @@ export class WtnSvc {
       }
 
       switch (type) {
-        case 'WTN':
+        case RewriterInstanceType.Wtn:
           await this.createWtnBro(opts, 1) // 1
           break
       }
@@ -150,7 +159,7 @@ export class WtnSvc {
     ).filter((inst) => inst) as TRewriterInstance[]
   }
 
-  protected static async getInstance(type: 'WTN'): Promise<TRewriterInstance> {
+  protected static async getInstance(type: RewriterInstanceType): Promise<TRewriterInstance> {
     const inst = this.instances
       .filter((ins) => ins?.type === type)
       .sort((a, b) => a.usedCount - b.usedCount)
@@ -182,7 +191,7 @@ export class WtnSvc {
   }
 
   protected static async createWtnBro(opts: TRewriterInstanceOpts, newInstancesCount: number): Promise<void> {
-    const { headless, maxPerUse = 100, liveMinutes = 10, maxInstance = 0 } = opts
+    const { headless, maxPerUse = 100, liveMinutes = 10, maxInstance = 0, type } = opts
     const instanceLiveSec = liveMinutes * 60
 
     await Promise.all(
@@ -213,7 +222,7 @@ export class WtnSvc {
           idleCloseSeconds: instanceLiveSec
         })
         const page = (await browser!.newPage({
-          url: this.svcUrl,
+          url: this.getSvcUrl(type),
           waitUntil: 'networkidle',
           blackList: {
             resourceTypes: ['stylesheet', 'image', 'media']
@@ -243,7 +252,7 @@ export class WtnSvc {
 
         this.instances.push({
           id,
-          type: 'WTN',
+          type,
           idle: true,
           usedCount: 0,
           maxPerUse,
@@ -257,14 +266,37 @@ export class WtnSvc {
     )
   }
 
+  protected static getSvcUrl(type: RewriterInstanceType): string | undefined {
+    switch (type) {
+      case RewriterInstanceType.Wtn:
+        return this.svcUrlWtn
+
+      case RewriterInstanceType.Quill:
+        return this.svcUrlQuill
+    }
+
+  }
+
   async getSuggestions(opts: TSuggestionsOpts): Promise<TRewriteResult> {
+    const wtnResult = await this.getSuggestionsWtn(opts)
+    if (wtnResult.suggestions?.length) {
+      return wtnResult
+    }
+
+    return {
+      suggestions: []
+    } as TRewriteResult
+  }
+
+  //#region WTN
+  async getSuggestionsWtn(opts: TSuggestionsOpts): Promise<TRewriteResult> {
     const { text, tryIndex = 0, tryLimit = 1 } = opts
 
     if (!text?.length || text.length > WTN_MAX_LENGTH || tryIndex >= tryLimit) {
       return { suggestions: [text] }
     }
 
-    const inst = await WtnSvc.getInstance('WTN')
+    const inst = await WtnSvc.getInstance(RewriterInstanceType.Wtn)
     await Proxifible.changeUseCountProxy(inst.proxyItem?.url())
     // console.log(`\n\nWTN: ${text.slice(0, 50)}...\n`, inst.proxyItem?.url(), inst.proxyItem?.useCount, '\n')
 
@@ -277,20 +309,20 @@ export class WtnSvc {
 
         // by token
         if (Math.random() > 0.85 && WtnSvc.token && !WtnSvc.pauseTokens[WtnSvc.token]) {
-          const apiResult: TRewriteResult | null = await this.getApiResult(inst?.page, opts)
+          const apiResult: TRewriteResult | null = await this.getApiResultWtn(inst?.page, opts)
           if (apiResult?.suggestions?.length) {
             return resolve(apiResult)
           }
         }
 
         // by demo
-        const demoResult: TRewriteResult | null = await this.getDemoResult(inst?.page, opts)
+        const demoResult: TRewriteResult | null = await this.getDemoResultWtn(inst?.page, opts)
         if (demoResult?.suggestions?.length) {
           return resolve(demoResult)
         }
 
         // by click
-        const clickResult = await this.getClickResult(inst, opts)
+        const clickResult = await this.getClickResultWtn(inst, opts)
         if (clickResult?.suggestions?.length) {
           return resolve(clickResult)
         }
@@ -322,7 +354,7 @@ export class WtnSvc {
     return result
   }
 
-  private async getApiResult(page: Page, opts: TSuggestionsOpts) {
+  private async getApiResultWtn(page: Page, opts: TSuggestionsOpts) {
     if (!WtnSvc.token) {
       return null
     }
@@ -369,7 +401,7 @@ export class WtnSvc {
         },
         {
           token: WtnSvc.token,
-          apiUrl: WtnSvc.apiUrl,
+          apiUrl: WtnSvc.apiUrlWtn,
           text: opts.text,
           mode: opts.mode,
           draftId: opts.draftId || 'DIV_editorContentEditable_jss32 jss33-1644093842417'
@@ -384,7 +416,7 @@ export class WtnSvc {
     return null
   }
 
-  private async getDemoResult(page: Page, opts: TSuggestionsOpts) {
+  private async getDemoResultWtn(page: Page, opts: TSuggestionsOpts) {
     try {
       if (page.isClosed()) {
         return null
@@ -425,7 +457,7 @@ export class WtnSvc {
           return null
         },
         {
-          apiUrl: WtnSvc.apiUrl,
+          apiUrl: WtnSvc.apiUrlWtn,
           text: opts.text,
           mode: opts.mode,
           draftId: opts.draftId || 'DIV_editorContentEditable_jss32 jss33-1644093842417'
@@ -438,7 +470,7 @@ export class WtnSvc {
     return null
   }
 
-  private async getClickResult(inst: TRewriterInstance, opts: TSuggestionsOpts) {
+  private async getClickResultWtn(inst: TRewriterInstance, opts: TSuggestionsOpts) {
     try {
       const page = inst.page
 
@@ -460,4 +492,6 @@ export class WtnSvc {
 
     return null
   }
+
+  //#endregion WTN
 }

@@ -12,8 +12,13 @@ export type TRewriterInstance = {
   proxyItem?: ProxyItem
 }
 
+export enum RewriterInstanceType {
+  Wtn = 'WTN',
+  Quill = 'QUILLBOT'
+}
+
 export type TRewriterInstanceOpts = {
-  type: 'WTN'
+  type: RewriterInstanceType
   maxInstance: number
   maxPerUse: number
   liveMinutes?: number
