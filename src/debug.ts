@@ -1,13 +1,14 @@
 /* tslint:disable:no-console */
 /* tslint:disable:no-debugger */
 
-import { WtnSvc } from '.'
+import { Dorewrita } from '.'
 import dotenv from 'dotenv'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { RewriteMode } from 'dprx-types'
 import { sleep } from 'time-helpers'
 import { Proxifible } from 'dofiltra_api'
+import { RewriterInstanceType } from './types'
 
 const debug = async () => {
   const rootPath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
@@ -15,13 +16,13 @@ const debug = async () => {
 
   await Proxifible.loadProxies()
 
-  const wtn = await WtnSvc.build({
+  const wtn = await Dorewrita.build({
     // token: process.env.WTNTOKEN,
     instanceOpts: [
       {
-        maxInstance: 2,
+        maxInstance: 1,
         maxPerUse: 100,
-        type: 'WTN',
+        type: RewriterInstanceType.Wtn,
         headless: false,
         liveMinutes: 100
       }

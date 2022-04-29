@@ -20,7 +20,7 @@ import { AppState, ProxyItem } from 'dprx-types'
 export * from './types'
 export const WTN_MAX_LENGTH = 280
 
-export class WtnSvc {
+export class Dorewrita {
   static instances: TRewriterInstance[] = []
 
   protected static creatingInstances = false
@@ -133,7 +133,8 @@ export class WtnSvc {
 
       switch (type) {
         case RewriterInstanceType.Wtn:
-          await this.createWtnBro(opts, 1) // 1
+        case RewriterInstanceType.Quill:
+          await this.createBro(opts, 1) // 1
           break
       }
     }
@@ -190,7 +191,7 @@ export class WtnSvc {
     delete this.instances[index]
   }
 
-  protected static async createWtnBro(opts: TRewriterInstanceOpts, newInstancesCount: number): Promise<void> {
+  protected static async createBro(opts: TRewriterInstanceOpts, newInstancesCount: number): Promise<void> {
     const { headless, maxPerUse = 100, liveMinutes = 10, maxInstance = 0, type } = opts
     const instanceLiveSec = liveMinutes * 60
 
@@ -243,7 +244,7 @@ export class WtnSvc {
         page.on('response', async (response) => {
           const statusCode = response.status()
           if (statusCode === 429 || statusCode === 456) {
-            WtnSvc.pauseTokens[WtnSvc.token!] = 'Limit 2000 per day'
+            Dorewrita.pauseTokens[Dorewrita.token!] = 'Limit 2000 per day'
             await Proxifible.changeUseCountProxy(proxyItem?.url(), Proxifible.limitPerProxy)
             await this.closeInstance(id)
             return
@@ -274,7 +275,6 @@ export class WtnSvc {
       case RewriterInstanceType.Quill:
         return this.svcUrlQuill
     }
-
   }
 
   async getSuggestions(opts: TSuggestionsOpts): Promise<TRewriteResult> {
@@ -296,7 +296,7 @@ export class WtnSvc {
       return { suggestions: [text] }
     }
 
-    const inst = await WtnSvc.getInstance(RewriterInstanceType.Wtn)
+    const inst = await Dorewrita.getInstance(RewriterInstanceType.Wtn)
     await Proxifible.changeUseCountProxy(inst.proxyItem?.url())
     // console.log(`\n\nWTN: ${text.slice(0, 50)}...\n`, inst.proxyItem?.url(), inst.proxyItem?.useCount, '\n')
 
@@ -308,7 +308,7 @@ export class WtnSvc {
         }
 
         // by token
-        if (Math.random() > 0.85 && WtnSvc.token && !WtnSvc.pauseTokens[WtnSvc.token]) {
+        if (Math.random() > 0.85 && Dorewrita.token && !Dorewrita.pauseTokens[Dorewrita.token]) {
           const apiResult: TRewriteResult | null = await this.getApiResultWtn(inst?.page, opts)
           if (apiResult?.suggestions?.length) {
             return resolve(apiResult)
@@ -336,9 +336,9 @@ export class WtnSvc {
 
     if (inst.page?.isClosed()) {
       await Proxifible.changeUseCountProxy(inst.proxyItem?.url(), Proxifible.limitPerProxy)
-      await WtnSvc.closeInstance(inst.id)
+      await Dorewrita.closeInstance(inst.id)
     } else {
-      WtnSvc.updateInstance(inst.id, {
+      Dorewrita.updateInstance(inst.id, {
         idle: true,
         usedCount: inst.usedCount + 1
       })
@@ -355,7 +355,7 @@ export class WtnSvc {
   }
 
   private async getApiResultWtn(page: Page, opts: TSuggestionsOpts) {
-    if (!WtnSvc.token) {
+    if (!Dorewrita.token) {
       return null
     }
 
@@ -400,19 +400,19 @@ export class WtnSvc {
           return null
         },
         {
-          token: WtnSvc.token,
-          apiUrl: WtnSvc.apiUrlWtn,
+          token: Dorewrita.token,
+          apiUrl: Dorewrita.apiUrlWtn,
           text: opts.text,
           mode: opts.mode,
           draftId: opts.draftId || 'DIV_editorContentEditable_jss32 jss33-1644093842417'
         }
       )
     } catch (error: any) {
-      WtnSvc.pauseTokens[WtnSvc.token] = error
+      Dorewrita.pauseTokens[Dorewrita.token] = error
       console.log(error)
     }
 
-    WtnSvc.pauseTokens[WtnSvc.token!] = 'Limit 2000 per day'
+    Dorewrita.pauseTokens[Dorewrita.token!] = 'Limit 2000 per day'
     return null
   }
 
@@ -457,7 +457,7 @@ export class WtnSvc {
           return null
         },
         {
-          apiUrl: WtnSvc.apiUrlWtn,
+          apiUrl: Dorewrita.apiUrlWtn,
           text: opts.text,
           mode: opts.mode,
           draftId: opts.draftId || 'DIV_editorContentEditable_jss32 jss33-1644093842417'
