@@ -310,7 +310,7 @@ export class Dorewrita {
   }
 
   //#region SBER
-   async getSuggestionsSber(opts: TSuggestionsOpts): Promise<TRewriteResult> {
+  async getSuggestionsSber(opts: TSuggestionsOpts): Promise<TRewriteResult> {
     const { text, tryIndex = 0, tryLimit = 1 } = opts
 
     if (!text?.length || text.length > WTN_MAX_LENGTH || tryIndex >= tryLimit) {
