@@ -349,6 +349,19 @@ export class Dorewrita {
         timeout: 60e3
       })
 
+      const sortBy: ('changeUrl' | 'useCount')[] = ['changeUrl', 'useCount']
+      const sortOrder: ('asc' | 'desc')[] = ['asc', 'asc']
+
+      const proxyItem = await Proxifible.getProxy({
+        filterTypes: ['http', 'https', 'socks5'],
+        filterVersions: [4],
+        sortBy,
+        sortOrder,
+        maxUseCount: Number.MAX_SAFE_INTEGER,
+        forceChangeIp: false
+      })
+      await Proxifible.changeUseCountProxy(proxyItem?.url())
+
       const resp = await fh('https://api.aicloud.sbercloud.ru/public/v2/rewriter/predict', {
         headers: {
           accept: 'application/json',
@@ -376,6 +389,7 @@ export class Dorewrita {
             }
           ]
         }),
+        proxy: proxyItem?.url(),
         method: 'POST'
       })
 
