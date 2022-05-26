@@ -5,7 +5,7 @@ import _ from 'lodash'
 import PQueue from 'p-queue'
 import crypto from 'crypto'
 import { BrowserManager, devices, Page } from 'browser-manager'
-import { Proxifible } from 'dofiltra_api'
+import { getFetchHap, Proxifible } from 'dofiltra_api'
 import {
   TRewriterInstance,
   TRewriterInstanceOpts,
@@ -241,7 +241,7 @@ export class Dorewrita {
         //   }
         // })
 
-        page.on('response', async (response) => {
+        page.on('response', async (response: any) => {
           const statusCode = response.status()
           if (statusCode === 429 || statusCode === 456) {
             Dorewrita.pauseTokens[Dorewrita.token!] = 'Limit 2000 per day'
@@ -288,6 +288,11 @@ export class Dorewrita {
       return { suggestions: [text], text }
     }
 
+    const sberResult = await this.getSuggestionsSber(opts)
+    if (sberResult?.suggestions?.length) {
+      return { ...sberResult, text }
+    }
+
     const quillResult = await this.getSuggestionsQuill(opts)
     if (quillResult?.suggestions?.length) {
       return { ...quillResult, text }
@@ -303,6 +308,87 @@ export class Dorewrita {
       suggestions: [text]
     } as TRewriteResult
   }
+
+  //#region SBER
+   async getSuggestionsSber(opts: TSuggestionsOpts): Promise<TRewriteResult> {
+    const { text, tryIndex = 0, tryLimit = 1 } = opts
+
+    if (!text?.length || text.length > WTN_MAX_LENGTH || tryIndex >= tryLimit) {
+      return { suggestions: [text], text }
+    }
+
+    const result: TRewriteResult | null = await new Promise(async (resolve) => {
+      try {
+        // by request
+        const demoResult: TRewriteResult | null = await this.getDemoResultSber(opts)
+        if (demoResult?.suggestions?.length) {
+          return resolve(demoResult)
+        }
+
+        return resolve(null)
+      } catch (e: any) {
+        console.log(e)
+        return resolve(null)
+      }
+    })
+
+    if (!result?.suggestions?.length) {
+      return await this.getSuggestionsSber({
+        ...opts,
+        tryIndex: tryIndex + 1
+      })
+    }
+
+    return result
+  }
+
+  private async getDemoResultSber(opts: TSuggestionsOpts) {
+    try {
+      const { text } = opts
+      const fh = await getFetchHap({
+        timeout: 60e3
+      })
+
+      const resp = await fh('https://api.aicloud.sbercloud.ru/public/v2/rewriter/predict', {
+        headers: {
+          accept: 'application/json',
+          'accept-language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
+          'cache-control': 'no-cache',
+          'content-type': 'application/json',
+          pragma: 'no-cache',
+          'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="102", "Google Chrome";v="102"',
+          'sec-ch-ua-mobile': '?0',
+          'sec-ch-ua-platform': '"Windows"',
+          'sec-fetch-dest': 'empty',
+          'sec-fetch-mode': 'cors',
+          'sec-fetch-site': 'same-origin',
+          Referer: 'https://api.aicloud.sbercloud.ru/public/v2/rewriter/docs',
+          'Referrer-Policy': 'strict-origin-when-cross-origin'
+        },
+        body: JSON.stringify({
+          instances: [
+            {
+              text,
+              temperature: 0.9,
+              top_k: 50,
+              top_p: 0.7,
+              range_mode: 'bertscore'
+            }
+          ]
+        }),
+        method: 'POST'
+      })
+
+      if (resp.ok) {
+        const { predictions_all = [] } = await resp.json()
+        return { suggestions: predictions_all, text }
+      }
+    } catch (e: any) {
+      console.log(e)
+    }
+    return null
+  }
+  //#endregion SBER
 
   //#region QUILL
   private async getSuggestionsBulkQuill({
@@ -420,9 +506,9 @@ export class Dorewrita {
       }
 
       return await page.evaluate(
-        async ({ apiUrl, bulk }) => {
+        async ({ apiUrl, bulk }: any) => {
           const bulkResults = await Promise.all(
-            bulk.map(async (b) => {
+            bulk.map(async (b: any) => {
               try {
                 const resp = await fetch(
                   `${apiUrl}/api/paraphraser/single-paraphrase/2?text=${encodeURIComponent(

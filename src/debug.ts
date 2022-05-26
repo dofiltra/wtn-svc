@@ -38,6 +38,14 @@ const debug = async () => {
     texts.push(text)
   }
 
+  const sber1 = await wtn.getSuggestionsSber({
+    text: texts[0]
+  })
+  const sber2 = await wtn.getSuggestionsSber({
+    text: ` Переходите на финальную страницу, где указан код вашей заявки, стоимость пошлины к оплате и адрес для отправки вашего конверта с документами.`
+  })
+  debugger
+
   const r1 = await wtn.getSuggestions({ text: texts[0], mode: RewriteMode.Longer })
   // await sleep(5e3)
   const r2 = await wtn.getSuggestions({ text: texts[1], mode: RewriteMode.Longer })
