@@ -44,7 +44,7 @@
   ],
   "dependencies": {
     "browser-manager": "^1.1.21",
-    "dofiltra_api": "^1.1.61",
+    "dofiltra_api": "^1.1.62",
     "dotenv": "^16.0.1",
     "dprx-types": "^1.1.120",
     "lodash": "^4.17.21",
