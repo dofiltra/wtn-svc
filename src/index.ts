@@ -413,17 +413,17 @@ export class Dorewrita {
 
   async getSummarizationSber(opts: TSuggestionsOpts) {
     try {
-      let num_return_sequences = 1
+      let numReturnSequences = 1
       const { text, mode = RewriteMode.Longer } = opts
       const fh = await getFetchHap({
         timeout: 60e3
       })
 
       if (mode === RewriteMode.Longer) {
-        num_return_sequences = Math.min(20, text.split('.').length + 5)
+        numReturnSequences = Math.min(20, text.split('.').length + 5)
       }
       if (mode === RewriteMode.Shorter) {
-        num_return_sequences = Math.max(5, text.split('.').length - 2)
+        numReturnSequences = Math.max(5, text.split('.').length - 2)
       }
 
       const sortBy: ('changeUrl' | 'useCount')[] = ['changeUrl', 'useCount']
@@ -461,7 +461,7 @@ export class Dorewrita {
               text,
               length_penalty: 1,
               num_beams: 1,
-              num_return_sequences
+              num_return_sequences: numReturnSequences
             }
           ]
         }),
