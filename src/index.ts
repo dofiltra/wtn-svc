@@ -15,7 +15,7 @@ import {
   RewriterInstanceType
 } from './types'
 import { sleep } from 'time-helpers'
-import { AppState, ProxyItem } from 'dprx-types'
+import { AppState, ProxyItem, RewriteMode } from 'dprx-types'
 
 export * from './types'
 export const WTN_MAX_LENGTH = 280
@@ -313,13 +313,21 @@ export class Dorewrita {
   async getSuggestionsSber(opts: TSuggestionsOpts): Promise<TRewriteResult> {
     const { text, tryIndex = 0, tryLimit = 1 } = opts
 
-    if (!text?.length || text.length > WTN_MAX_LENGTH || tryIndex >= tryLimit) {
+    if (!text?.length || tryIndex >= tryLimit) {
       return { suggestions: [text], text }
     }
 
     const result: TRewriteResult | null = await new Promise(async (resolve) => {
       try {
-        // by request
+        // by summarizator
+        if (text.length > WTN_MAX_LENGTH) {
+          const summarizeResult: TRewriteResult | null = await this.getSummarizationSber(opts)
+          if (summarizeResult?.suggestions?.length) {
+            return resolve(summarizeResult)
+          }
+        }
+
+        // by rewriter
         const demoResult: TRewriteResult | null = await this.getDemoResultSber(opts)
         if (demoResult?.suggestions?.length) {
           return resolve(demoResult)
@@ -396,6 +404,79 @@ export class Dorewrita {
       if (resp.ok) {
         const { predictions_all = [] } = await resp.json()
         return { suggestions: predictions_all, text }
+      }
+    } catch (e: any) {
+      console.log(e)
+    }
+    return null
+  }
+
+  async getSummarizationSber(opts: TSuggestionsOpts) {
+    try {
+      let num_return_sequences = 1
+      const { text, mode = RewriteMode.Longer } = opts
+      const fh = await getFetchHap({
+        timeout: 60e3
+      })
+
+      if (mode === RewriteMode.Longer) {
+        num_return_sequences = Math.min(20, text.split('.').length + 5)
+      }
+      if (mode === RewriteMode.Shorter) {
+        num_return_sequences = Math.max(5, text.split('.').length - 2)
+      }
+
+      const sortBy: ('changeUrl' | 'useCount')[] = ['changeUrl', 'useCount']
+      const sortOrder: ('asc' | 'desc')[] = ['asc', 'asc']
+
+      const proxyItem = await Proxifible.getProxy({
+        filterTypes: ['http', 'https', 'socks5'],
+        filterVersions: [4],
+        sortBy,
+        sortOrder,
+        maxUseCount: Number.MAX_SAFE_INTEGER,
+        forceChangeIp: false
+      })
+      await Proxifible.changeUseCountProxy(proxyItem?.url())
+
+      const resp = await fh('https://api.aicloud.sbercloud.ru/public/v2/summarizator/predict', {
+        headers: {
+          accept: 'application/json',
+          'accept-language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
+          'cache-control': 'no-cache',
+          'content-type': 'application/json',
+          pragma: 'no-cache',
+          'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="102", "Google Chrome";v="102"',
+          'sec-ch-ua-mobile': '?0',
+          'sec-ch-ua-platform': '"Windows"',
+          'sec-fetch-dest': 'empty',
+          'sec-fetch-mode': 'cors',
+          'sec-fetch-site': 'same-origin',
+          Referer: 'https://api.aicloud.sbercloud.ru/public/v2/summarizator/docs',
+          'Referrer-Policy': 'strict-origin-when-cross-origin'
+        },
+        body: JSON.stringify({
+          instances: [
+            {
+              text,
+              length_penalty: 1,
+              num_beams: 1,
+              num_return_sequences
+            }
+          ]
+        }),
+        proxy: proxyItem?.url(),
+        method: 'POST'
+      })
+
+      if (resp.ok) {
+        const { predictions, comment } = await resp.json()
+
+        if (comment !== 'Ok') {
+          return null
+        }
+
+        return { suggestions: [predictions], text }
       }
     } catch (e: any) {
       console.log(e)
