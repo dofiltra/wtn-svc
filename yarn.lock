@@ -240,7 +240,7 @@ commander@^5.1.0:
 concat-map@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/concat-map/-/concat-map-0.0.1.tgz#d8a96bd77fd68df7793a73036a3ba0d5405d477b"
-  integrity sha1-2Klr13/Wjfd5OnMDajug1UBdR3s=
+  integrity sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==
 
 data-uri-to-buffer@^4.0.0:
   version "4.0.0"
@@ -269,10 +269,10 @@ diff@^4.0.1:
   resolved "https://registry.yarnpkg.com/diff/-/diff-4.0.2.tgz#60f3aecb89d5fae520c11aa19efc2bb982aade7d"
   integrity sha512-58lmxKSA4BNyLz+HHMUzlOEpg09FV+ev6ZMe3vJihgdxzgcwZ8VoEEPmALCZG9LmqfVoNMMKpttIYTVG6uDY7A==
 
-dofiltra_api@^1.1.59:
-  version "1.1.59"
-  resolved "https://registry.yarnpkg.com/dofiltra_api/-/dofiltra_api-1.1.59.tgz#247aa1fc6cfe6e6cb96ba50a636604c5a4d005c8"
-  integrity sha512-bJFztTiMLtxPiKe8IBzEFL/pRAmVgx2NNSZh9S+GaF/iWDKK+lp/gUbxboYB826XupQnhtr5w/jzq5OxZa3Ygg==
+dofiltra_api@^1.1.61:
+  version "1.1.61"
+  resolved "https://registry.yarnpkg.com/dofiltra_api/-/dofiltra_api-1.1.61.tgz#88a6b03840b6c900445d726d38a55a748d65ec29"
+  integrity sha512-cb9gmkkfcZrMRqdOsu+RzmYjmhNArLWUvm6smtpDS136r6Q6g8TxTGxIaxB4nFC4WRD4/7ImwDbAbkqb5NP9Vw==
   dependencies:
     dotenv "^16.0.1"
     dprx-types "^1.1.120"
